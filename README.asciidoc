@@ -1,0 +1,24 @@
+== SharedLib for Production Line configuration
+
+This is the base library to configure a Production Line
+
+=== Jenkins
+
+==== Create Credential Object
+
+Method for creating a global credential object in the jenkins context.
+
+
+===== Execution example:
+[source]
+----
+// uniqe id
+def String id = "myid"
+// username for the object
+def String username = "myuser"
+// password for the object
+def String password = "mypwd"
+
+// create the new object
+createCredentialObject( id, username, password )
+----
