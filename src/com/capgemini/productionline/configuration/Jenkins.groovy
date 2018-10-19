@@ -21,12 +21,6 @@ import jenkins.model.*
  */
 
  class JenkinsConfiguration implements Serializable {
-
-  def instance = Jenkins.getInstance()
-
-  def pm = instance.getPluginManager()
-  def uc = instance.getUpdateCenter()
-
   /**
    * Method for creating a global credential object in the jenkins context.
    * <p>
@@ -67,6 +61,10 @@ import jenkins.model.*
   public Boolean installPlugin( pluginsToInstall ) {
     def newPluginInstalled = false
     def initialized = false
+    def instance = Jenkins.getInstance()
+
+    def pm = instance.getPluginManager()
+    def uc = instance.getUpdateCenter()
 
     pluginsToInstall.each {
       def String pluginName = it
@@ -106,6 +104,7 @@ import jenkins.model.*
    *    Optional Boolean parameter stating if the restart should be safe (default: false)
    */
   public restartJenkins( safeRestart ) {
+    def instance = Jenkins.getInstance()
     if ( safeRestart ) { 
       instance.safeRestart()
     } else {
