@@ -1,24 +1,26 @@
-== SharedLib for Production Line configuration
+== SharedLib for Production Line
 
-This is the base library to configure a Production Line
+This is the base library to work with a Production Line
 
-=== Jenkins
+The global lib structure is package based and the hierarchy is as follows:
 
-==== Create Credential Object
-
-Method for creating a global credential object in the jenkins context.
-
-
-===== Execution example:
 [source]
 ----
-// uniqe id
-def String id = "myid"
-// username for the object
-def String username = "myuser"
-// password for the object
-def String password = "mypwd"
-
-// create the new object
-createCredentialObject( id, username, password )
+com
+ |
+ \- capgemini
+     |
+     \- productionline
+         |
+         |- configuration (containing all packages for configuring the components of the ProductionLine) 
+         |
+         |- build (common functions used during build process)
+         |
+         \- deployment (common functions used during the deployment process)
 ----
+
+For further information (like usage examples) please have a look in the ```doc/configuration``` folder of this repository.
+Currently available configuration packages:
+
+* Jenkins (```./doc/configuration/jenkins.asciidoc```)
+
