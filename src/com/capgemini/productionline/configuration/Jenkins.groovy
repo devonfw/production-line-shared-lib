@@ -19,7 +19,6 @@ import jenkins.model.*
  *
  * Created by tlohmann on 19.10.2018.
  */
-
  class JenkinsConfiguration implements Serializable {
   /**
    * Method for creating a global credential object in the jenkins context.
