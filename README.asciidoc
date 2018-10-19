@@ -23,4 +23,5 @@ For further information (like usage examples) please have a look in the ```doc/c
 Currently available configuration packages:
 
 * Jenkins (```./doc/configuration/jenkins.asciidoc```)
+* GitLab (```./doc/configuration/gitlab.asciidoc```)
 * SonarQube (```./doc/configuration/sonarqube.asciidoc```)
