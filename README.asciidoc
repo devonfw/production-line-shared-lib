@@ -1,0 +1,27 @@
+== SharedLib for Production Line
+
+This is the base library to work with a Production Line
+
+The global lib structure is package based and the hierarchy is as follows:
+
+[source]
+----
+com
+ |
+ \- capgemini
+     |
+     \- productionline
+         |
+         |- configuration (containing all packages for configuring the components of the ProductionLine) 
+         |
+         |- build (common functions used during build process)
+         |
+         \- deployment (common functions used during the deployment process)
+----
+
+For further information (like usage examples) please have a look in the ```doc/configuration``` folder of this repository.
+Currently available configuration packages:
+
+* Jenkins (```./doc/configuration/jenkins.asciidoc```)
+* GitLab (```./doc/configuration/gitlab.asciidoc```)
+* SonarQube (```./doc/configuration/sonarqube.asciidoc```)
