@@ -42,7 +42,7 @@ import jenkins.model.*
     return credObj
   }
  
-  public deleteCredatialObject(String id) {
+  public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
@@ -110,6 +110,8 @@ import jenkins.model.*
       instance.restart()
     }
   }
+
+  //Restart jenkins instantely
   public restartJenkins() {
     restartJenkins( false )
   }
