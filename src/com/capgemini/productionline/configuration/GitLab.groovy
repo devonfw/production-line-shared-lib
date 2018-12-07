@@ -41,10 +41,14 @@ class GitLab implements Serializable {
   }
 
   //Creates a new GIT project
-  public createProject(String groupname, String projectname, String projectpath, String projectdescription, String branchname, String importurl) {
+  // Ref: https://docs.gitlab.com/ce/api/projects.html#create-project
+  //
+  // visibility = private/internal/public
+  // import_url = set to any public git repo and it will clone it!
+  public createProject(String groupname, String projectname, String projectpath, String projectdescription, String branchname, String importurl, String visibility) {
     def groupid = getGroupId(groupname)
     // create project in target group
-    this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: 'http://gitlab-core/gitlab/api/v4/projects?name='+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")+'&import_url='+importurl
+    this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: 'http://gitlab-core/gitlab/api/v4/projects?name='+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")+'&import_url='+importurl+'&visibility='+visibility
   }
 
   //Creates a new branch in a gitlab project
