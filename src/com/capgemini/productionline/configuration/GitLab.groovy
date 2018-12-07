@@ -5,7 +5,7 @@ package com.capgemini.productionline.configuration
  * <p>
  *     The main purpose collecting configuration methods.
  *
- * Created by tlohmann on 19.10.2018.
+ * Created by tlohmann(!) on 19.10.2018.
  */
 
 class GitLab implements Serializable {
@@ -14,6 +14,7 @@ class GitLab implements Serializable {
   def context
 
   //In order to access the GitLab API, we need a private token!
+  //context is the JENKINS object "this"
   GitLab (context, token) {
     this.context = context
     this.accesstoken = token
@@ -40,10 +41,10 @@ class GitLab implements Serializable {
   }
 
   //Creates a new GIT project
-  public createProject(String groupname, String projectname, String projectpath, String projectdescription, String branchname) {
+  public createProject(String groupname, String projectname, String projectpath, String projectdescription, String branchname, String importurl) {
     def groupid = getGroupId(groupname)
     // create project in target group
-    this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: 'http://gitlab-core/gitlab/api/v4/projects?name='+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")
+    this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: 'http://gitlab-core/gitlab/api/v4/projects?name='+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")+'&import_url='+importurl
   }
 
   //Creates a new branch in a gitlab project
