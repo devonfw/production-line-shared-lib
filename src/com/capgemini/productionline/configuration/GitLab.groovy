@@ -29,7 +29,7 @@ class GitLab implements Serializable {
 
   //Returns the project ID of a GIT project
   public String getProjectId (String groupname, String projectname) {
-    def groupid = getGroupid(groupname)
+    def groupid = getGroupId(groupname)
     def searchresult = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'GET', url: 'http://gitlab-core/gitlab/api/v4/groups/'+groupid+'/projects?search='+projectname
     def jsonObject = this.context.readJSON text: searchresult.getContent()
     return String.valueOf(jsonObject.id).replace("[","").replace("]","")
