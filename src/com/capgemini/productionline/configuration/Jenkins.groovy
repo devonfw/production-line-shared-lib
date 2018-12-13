@@ -48,7 +48,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return credObj
   }
 
-  public deleteCredatialObject(String id) {
+  public deleteCredatialObject(String id) { 
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
