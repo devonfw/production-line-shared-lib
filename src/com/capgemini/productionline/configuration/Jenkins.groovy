@@ -70,7 +70,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
        } else {
          println "installing gcc tool"
 
-         def newI = new CustomTool("gcc", "/usr/local/gcc/", ToolProperty.all(), "bin", null, ToolVersionConfig.DEFAULT, null)
+         def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
          installs += newI
 
          a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
