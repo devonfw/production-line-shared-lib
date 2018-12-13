@@ -75,7 +75,8 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
          a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
-      a.save()
+         a.save()
+         customTools.push(a)
        }
      }
 
