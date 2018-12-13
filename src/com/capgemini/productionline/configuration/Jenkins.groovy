@@ -61,10 +61,10 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     def a  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
     
     def installs = a.getInstallations()
-    def found = installs.find { 
-      it.name == "gcc"
-    }
-
+   def found = installs.find {
+    it.name == "gcc"
+   }
+   
     if ( found ) {
       println "gcc is already installed"
       } else {
