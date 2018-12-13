@@ -55,7 +55,6 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
   public addCustomTool(String name){
 
-<<<<<<< HEAD
      // println "name" + name
      // def instance = Jenkins.getInstance()
      // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class);
@@ -79,31 +78,6 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       a.save()
        }
      }
-=======
-    // println "name" + name
-    // def instance = Jenkins.getInstance()
-    // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class);
-    def a  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
-    
-    def installs = a.getInstallations()
-   def found = installs.find {
-    it.name == "gcc"
-   }
-   
-    if ( found ) {
-      println "gcc is already installed"
-      } else {
-        println "installing gcc tool"
-
-        def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
-        installs += newI
-        
-        a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
-
-     a.save()
-      }
-    }
->>>>>>> c9c86a82945c3baf52e7449958092166e5cab45b
 
   /**
    * Method for installing a jenkins plugin
