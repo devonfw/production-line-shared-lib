@@ -48,33 +48,36 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return credObj
   }
 
-  public deleteCredatialObject(String id) { 
+  public deleteCredatialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
 
   public addCustomTool(String name){
 
-    // println "name" + name
-    // def instance = Jenkins.getInstance()
-    // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class); 
-    def a= Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
-    def installs = a.getInstallations()
-    def found = installs.find { 
-      it.name == "gcc"
+     // println "name" + name
+     // def instance = Jenkins.getInstance()
+     // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class);
+     def a  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
+
+     def installs = a.getInstallations()
+    def found = installs.find {
+     it.name == "gcc"
     }
 
-    if ( found ) {
-      println "gcc is already installed"
-      } else {
-        println "installing gcc tool"
+     if ( found ) {
+       println "gcc is already installed"
+       } else {
+         println "installing gcc tool"
 
-        def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
-        installs += newI
-        a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs ); 
-        a.save()
-      }
-    }
+         def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
+         installs += newI
+
+         a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
+
+      a.save()
+       }
+     }
 
   /**
    * Method for installing a jenkins plugin
