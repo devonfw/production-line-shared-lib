@@ -48,7 +48,7 @@ import jenkins.model.*
   }
 
   public addCustomTool(String name){
-    println "name" + name;
+    println "name" + name
   }
 
   /**
