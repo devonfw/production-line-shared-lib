@@ -53,11 +53,11 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
 
-  public addCustomTool(String name, jenkins){
+  public addCustomTool(String name){
 
     // println "name" + name
-
-    def a= jenkins.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]; 
+    def instance = Jenkins.getInstance()
+    def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]; 
 
     def installs = a.getInstallations()
     def found = installs.find { 
