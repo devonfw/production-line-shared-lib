@@ -41,12 +41,15 @@ import jenkins.model.*
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
     return credObj
   }
- 
+
   public deleteCredatialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
- 
+
+  public addCustomTool(String name){
+    println "name" + name;
+  }
 
   /**
    * Method for installing a jenkins plugin
@@ -104,7 +107,7 @@ import jenkins.model.*
    */
   public restartJenkins( safeRestart ) {
     def instance = Jenkins.getInstance()
-    if ( safeRestart ) { 
+    if ( safeRestart ) {
       instance.safeRestart()
     } else {
       instance.restart()
