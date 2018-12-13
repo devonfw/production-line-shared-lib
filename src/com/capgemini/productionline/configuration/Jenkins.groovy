@@ -72,8 +72,10 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
         def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
         installs += newI
-        a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs ); 
-        a.save()
+        
+        a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
+
+     a.save()
       }
     }
 
