@@ -57,7 +57,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     // println "name" + name
 
-    a=Jenkins.instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]; 
+    def a=Jenkins.instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]; 
 
     def installs = a.getInstallations()
     def found = installs.find { 
