@@ -10,13 +10,13 @@ import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
 
 
-import jenkins.model.* 
+import jenkins.model.*;
 import com.cloudbees.jenkins.plugins.customtools.CustomTool;
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
 
 
 // following imports needed jenkins plugin installation
-import jenkins.model.*
+// import jenkins.model.*
 
 /**
  * Contains the configuration methods of the jenkins component
