@@ -57,8 +57,9 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     // println "name" + name
     // def instance = Jenkins.getInstance()
-    // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class); 
-    def a= Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
+    // def a= instance.getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class);
+    def a  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptionImpl.clas)[0]
+    
     def installs = a.getInstallations()
     def found = installs.find { 
       it.name == "gcc"
