@@ -8,6 +8,7 @@ import org.jenkinsci.plugins.plaincredentials.*
 import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
+import hudson.tools.*
 
 
 import jenkins.model.*;
