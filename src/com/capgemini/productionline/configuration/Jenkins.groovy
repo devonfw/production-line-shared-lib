@@ -76,7 +76,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
      def jenkinsExtensionList  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
 
-     def installs = a.getInstallations()
+     def installs = jenkinsExtensionList.getInstallations()
      def found = installs.find {
        it.name == toolName
      }
