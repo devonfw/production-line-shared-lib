@@ -69,14 +69,19 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
        println "gcc is already installed"
        } else {
          println "installing gcc tool"
+         // def customTools = []
+         List installers = new ArrayList();
+          installers.add(new CommandInstaller(null,"echo test", null))
+          List<ToolProperty> properties = new ArrayList<ToolProperty>()
+          properties.add(new InstallSourceProperty(installers))
 
-         def newI = new CustomTool("gcc", "/usr/local/gcc/", null, "bin", null, ToolVersionConfig.DEFAULT, null)
+         def newI = new CustomTool("gcc", "/usr/local/gcc/", properties, "bin", null, ToolVersionConfig.DEFAULT, null)
          installs += newI
 
          a.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
          a.save()
-         customTools.push(a)
+
        }
      }
 
