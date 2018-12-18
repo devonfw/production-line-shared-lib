@@ -8,13 +8,12 @@ import org.jenkinsci.plugins.plaincredentials.*
 import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
-import hudson.tools.*
 
-
+// following imports needed jenkins plugin installation
+import jenkins.model.*
 import jenkins.model.*;
 import com.cloudbees.jenkins.plugins.customtools.CustomTool;
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
-
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -171,4 +170,4 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
   public restartJenkins() {
     restartJenkins( false )
   }
-}
+ }

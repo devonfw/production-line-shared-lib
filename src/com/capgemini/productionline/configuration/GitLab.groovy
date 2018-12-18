@@ -19,7 +19,6 @@ class GitLab implements Serializable {
     this.accesstoken = token
   }
 
-  
   private String getGroupId (String groupname) {
     def searchresult = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'GET', url: 'http://gitlab-core/gitlab/api/v4/groups?search='+groupname
     def jsonObject = this.context.readJSON text: searchresult.getContent()
