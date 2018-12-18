@@ -5,7 +5,7 @@ package com.capgemini.productionline.configuration
  * <p>
  *     The main purpose collecting configuration methods.
  *
- * Created by tlohmann(!) on 19.10.2018.
+ * Created by tlohmann on 19.10.2018.
  */
 class GitLab implements Serializable {
 

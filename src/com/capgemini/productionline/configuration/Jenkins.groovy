@@ -91,7 +91,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
           properties.add(new InstallSourceProperty(installers))
 
          def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
-         installs += ne
+         installs += newI
 
          jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
@@ -239,5 +239,4 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
     }
   }
-
 }
