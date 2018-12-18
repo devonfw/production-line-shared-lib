@@ -9,8 +9,9 @@ import hudson.util.Secret
 import hudson.tools.CommandInstaller
 import hudson.tools.InstallSourceProperty
 import hudson.tools.ToolProperty
-
 import jenkins.model.Jenkins
+import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -41,7 +42,7 @@ import jenkins.model.Jenkins
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
     return credObj
   }
- 
+
   public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
@@ -90,7 +91,7 @@ import jenkins.model.Jenkins
           properties.add(new InstallSourceProperty(installers))
 
          def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
-         installs += newI
+         installs += ne
 
          jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
@@ -147,6 +148,31 @@ import jenkins.model.Jenkins
     return newPluginInstalled
   }
 
+  /**
+  This method approves all scripts that are waiting for Approval
+  */
+  public approvePendingScript() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingScript pending : sa.getPendingScripts()) {
+      sa.approveScript(pending.getHash());
+      println "Approved Script: " + pending.script
+    }
+  }
+
+  /**
+  This method approves all signature that are waiting for Approval
+  */
+  public approvePendingSignature() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingSignature pending : sa.getPendingSignatures()) {
+      sa.approveSignature(pending.signature);
+      println "Approved Signature: " + pending.signature
+    }
+  }
   /**
    * Method for restarting jenkins
    * <p>
