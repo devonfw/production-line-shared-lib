@@ -7,13 +7,15 @@ import com.cloudbees.plugins.credentials.domains.*;
 import org.jenkinsci.plugins.plaincredentials.*
 import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
-
-// following imports needed jenkins plugin installation
-import jenkins.model.*
 import hudson.util.Secret
 import hudson.tools.*
+import org.jenkinsci.plugins.scriptsecurity.scripts.*
+
+import jenkins.model.*
 import com.cloudbees.jenkins.plugins.customtools.CustomTool
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+
+
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -44,7 +46,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
     return credObj
   }
- 
+
   public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
@@ -93,7 +95,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
           properties.add(new InstallSourceProperty(installers))
 
          def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
-         installs += newI
+         installs += ne
 
          jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
@@ -150,6 +152,31 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return newPluginInstalled
   }
 
+  /**
+  This method approves all scripts that are waiting for Approval
+  */
+  public approvePendingScript() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingScript pending : sa.getPendingScripts()) {
+      sa.approveScript(pending.getHash());
+      println "Approved Script: " + pending.script
+    }
+  }
+
+  /**
+  This method approves all signature that are waiting for Approval
+  */
+  public approvePendingSignature() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingSignature pending : sa.getPendingSignatures()) {
+      sa.approveSignature(pending.signature);
+      println "Approved Signature: " + pending.signature
+    }
+  }
   /**
    * Method for restarting jenkins
    * <p>
