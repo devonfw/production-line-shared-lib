@@ -32,4 +32,15 @@ Currently available configuration packages:
 
 == How to use it
 
+=== Add the 'SharedLib for Production Line' to your Jenkins Instance
+
 image:ManageJenkinsScreenshot.png[Manage Jenkins Screenshot]
+
+image:ConfigureSystemJenkinsScreenshot.png[Configure System Screenshot]
+
+Search for 'Global Pipeline Libraries'
+
+image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot]
+
+=== Build a new Job based on the template
+
