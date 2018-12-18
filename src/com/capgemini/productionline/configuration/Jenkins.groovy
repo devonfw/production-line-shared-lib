@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
 import hudson.tools.*
-
+import org.jenkinsci.plugins.scriptsecurity.scripts.*
 
 import jenkins.model.*;
 import com.cloudbees.jenkins.plugins.customtools.CustomTool;
@@ -154,6 +154,31 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return newPluginInstalled
   }
 
+  /**
+  This method approves all scripts that are waiting for Approval
+  */
+  public approvePendingScript() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingScript pending : sa.getPendingScripts()) {
+      sa.approveScript(pending.getHash());
+      println "Approved Script: " + pending.script
+    }
+  }
+
+  /**
+  This method approves all signature that are waiting for Approval
+  */
+  public approvePendingSignature() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingSignature pending : sa.getPendingSignatures()) {
+      sa.approveSignature(pending.signature);
+      println "Approved Signature: " + pending.signature
+    }
+  }
   /**
    * Method for restarting jenkins
    * <p>
