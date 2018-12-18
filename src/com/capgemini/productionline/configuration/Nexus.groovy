@@ -1,6 +1,6 @@
 package com.capgemini.productionline.configuration
 
-import groovy.json.*
+import groovy.json.JsonSlurper
 
 /**
 * Contains the configuration methods of the nexus component

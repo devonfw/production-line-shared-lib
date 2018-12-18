@@ -1,19 +1,16 @@
-package com.capgemini.productionline.configuration.jenkins
+package com.capgemini.productionline.configuration
 
-// The following imports are needed for the credential objects
-import com.cloudbees.plugins.credentials.impl.*;
-import com.cloudbees.plugins.credentials.*;
-import com.cloudbees.plugins.credentials.domains.*;
-import org.jenkinsci.plugins.plaincredentials.*
-import org.jenkinsci.plugins.plaincredentials.impl.*
-import com.cloudbees.plugins.credentials.common.*
+import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.cloudbees.plugins.credentials.Credentials
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+
 import hudson.util.Secret
+import hudson.tools.CommandInstaller
+import hudson.tools.InstallSourceProperty
+import hudson.tools.ToolProperty
 
-// following imports needed jenkins plugin installation
-import jenkins.model.*
-import jenkins.model.*;
-import com.cloudbees.jenkins.plugins.customtools.CustomTool;
-import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
+import jenkins.model.Jenkins
 
 /**
  * Contains the configuration methods of the jenkins component
