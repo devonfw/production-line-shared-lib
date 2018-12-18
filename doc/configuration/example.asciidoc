@@ -1,0 +1,14 @@
+= Usage Examples
+
+:toc:
+
+== Installing a custom tool in Jenkins
+
+```Groovy
+@Library('ProductionLineTemplateLib')
+
+import com.capgemini.productionline.configuration.*
+Jenkins jenkinsConfiguration = new Jenkins();
+
+println jenkinsConfiguration.addCustomTool('gcc', 'cmd1', '/usr/bin/', '/hom/', 'bin', '/pwd/', null);
+```
