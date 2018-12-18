@@ -1,7 +1,11 @@
-== SharedLib for Production Line
+= SharedLib for Production Line
+:imagesdir: doc/assets/images
 
-This is the base library to work with a Production Line
+This project is a Jenkins Shared Library ( see https://jenkins.io/doc/book/pipeline/shared-libraries/ ) which provides several methods to do a pre-configuration of the 'Production Line'.
 
+:toc:
+
+== Introduction
 The global lib structure is package based and the hierarchy is as follows:
 
 [source]
@@ -25,3 +29,7 @@ Currently available configuration packages:
 * Jenkins (```./doc/configuration/jenkins.asciidoc```)
 * GitLab (```./doc/configuration/gitlab.asciidoc```)
 * SonarQube (```./doc/configuration/sonarqube.asciidoc```)
+
+== How to use it
+
+image:ManageJenkinsScreenshot.png[Manage Jenkins Screenshot]
