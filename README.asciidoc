@@ -37,3 +37,14 @@ To make all of the 'SharedLib for Production Line' methods available for Jobs, t
 . Add the library image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot,float="right"]
 
 === Build a new Job based on the template
+
+To use the 'SharedLib for Production Line' in a Jenkins-Job just create a new Pipeline and start using it as shown below.
+
+```Groovy
+@Library('ProductionLineTemplateLib')
+
+import com.capgemini.productionline.configuration.*
+Jenkins jenkinsConfiguration = new Jenkins();
+
+println jenkinsConfiguration.addCustomTool('gcc', 'cmd1', '/usr/bin/', '/hom/', 'bin', '/pwd/', null);
+```
