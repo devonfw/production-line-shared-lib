@@ -7,7 +7,6 @@ package com.capgemini.productionline.configuration
  *
  * Created by tlohmann(!) on 19.10.2018.
  */
-
 class GitLab implements Serializable {
 
   def String accesstoken = ""
@@ -20,7 +19,6 @@ class GitLab implements Serializable {
     this.accesstoken = token
   }
 
-  
   public String getGroupId (String groupname) {
     def searchresult = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'GET', url: 'http://gitlab-core/gitlab/api/v4/groups?search='+groupname
     def jsonObject = this.context.readJSON text: searchresult.getContent()
@@ -35,7 +33,6 @@ class GitLab implements Serializable {
     return String.valueOf(jsonObject.id).replace("[","").replace("]","")
   } 
 
-  //Creates a new group for projects
   //In order to create a group in Gitlab the user needs to have the "Can create groups permissions". This needs to be sex explicitely!
   public createGroup(String groupname, String grouppath, String groupdesc, String grouptype) {
     this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: 'http://gitlab-core/gitlab/api/v4/groups?name='+groupname+'&path='+grouppath+'&description='+java.net.URLEncoder.encode(groupdesc, "UTF-8")+'&visibility='+grouptype
