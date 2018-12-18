@@ -7,7 +7,6 @@ package com.capgemini.productionline.configuration
  *
  * Created by tlohmann on 19.10.2018.
  */
-
 class GitLab implements Serializable {
 
   def String accesstoken = ""

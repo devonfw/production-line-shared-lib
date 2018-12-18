@@ -1,6 +1,6 @@
 package com.capgemini.productionline.configuration.jenkins
 
-// following imports needed for the credential objects
+// The following imports are needed for the credential objects
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
@@ -9,20 +9,18 @@ import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
 
-// following imports needed jenkins plugin installation
+// The following imports are needed jenkins plugin installation
 import jenkins.model.*
 
 /**
- * Contains the configuration methods of the jenkins component
- * <p>
- *     The main purpose collecting configuration methods.
+ * Contains the configuration methods of the 'Jenkins' component.
  *
  * Created by tlohmann on 19.10.2018.
  */
  class JenkinsConfiguration implements Serializable {
   /**
    * Method for creating a global credential object in the jenkins context.
-   * <p>
+   * 
    * @param id
    *    uniqe id for references in Jenkins
    * @param desc
@@ -31,6 +29,7 @@ import jenkins.model.*
    *    username of the credentials object.
    * @param password
    *    password of the credentials object.
+   * @return A 'UsernamePasswordCredentialsImpl' object that contains the given username and password.
    */
   public UsernamePasswordCredentialsImpl createCredatialObjectUsernamePassword(String id, String desc, String username, String password) {
     // create credential object
@@ -50,8 +49,9 @@ import jenkins.model.*
 
   /**
    * Method for installing a jenkins plugin
-   * <p>
-   *    Installs the given list of Jenkins plugins if not installed already. Before installing a plugin, the UpdateCenter is updated.
+   * 
+   * Installs the given list of Jenkins plugins if not installed already. Before installing a plugin, the UpdateCenter is updated.
+   * 
    * @param pluginsToinstall
    *    list of plugins to install
    * @return
@@ -97,8 +97,9 @@ import jenkins.model.*
 
   /**
    * Method for restarting jenkins
-   * <p>
-   *    perform a restart of the jenkins instance. This is necessary when for e.g. a new plugin is installed. The restart should allway be performed at the end of the configuration.
+   * 
+   * Perform a restart of the jenkins instance. This is necessary when for e.g. a new plugin is installed. The restart should allway be performed at the end of the configuration.
+   * 
    * @param safeRestart
    *    Optional Boolean parameter stating if the restart should be safe (default: false)
    */
