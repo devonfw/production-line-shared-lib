@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+package com.capgemini.productionline.configuration
 
 class ProductionLineGlobals implements Serializable {
     def static final String CONFLUENCE_BASE_URL = "http://confluence-core:8090/confluence"

@@ -1,6 +1,6 @@
 package com.capgemini.productionline.configuration.jenkins
 
-// following imports needed for the credential objects
+// The following imports are needed for the credential objects
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
@@ -11,13 +11,11 @@ import hudson.util.Secret
 import hudson.tools.*
 import org.jenkinsci.plugins.scriptsecurity.scripts.*
 
-import jenkins.model.*;
-import com.cloudbees.jenkins.plugins.customtools.CustomTool;
-import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
+import jenkins.model.*
+import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
 
-// following imports needed jenkins plugin installation
-// import jenkins.model.*
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -49,7 +47,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return credObj
   }
 
-  public deleteCredatialObject(String id) {
+  public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
@@ -97,7 +95,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
           properties.add(new InstallSourceProperty(installers))
 
          def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
-         installs += newI
+         installs += ne
 
          jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
@@ -194,7 +192,56 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       instance.restart()
     }
   }
+
+  //Restart jenkins instantely
   public restartJenkins() {
     restartJenkins( false )
   }
+
+  //JOBDSl cannot run automatically if security is enabled!
+  public disableJobDSLScriptSecurity(){
+
+    Jenkins j = Jenkins.instance
+
+    if(!j.isQuietingDown()) {
+        def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
+        
+        if(job_dsl_security.useScriptSecurity) {
+          job_dsl_security.useScriptSecurity = false
+          println 'Job DSL script security has changed.  It is now disabled.'
+          job_dsl_security.save()
+          j.save()
+        }
+        else {
+          println 'Nothing changed.  Job DSL script security already disabled.'
+        }
+    }
+    else {
+      println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
+    }
+  }
+
+  //JOBDSl cannot run automatically if security is enabled!
+  public enableJobDSLScriptSecurity(){
+
+    Jenkins j = Jenkins.instance
+
+    if(!j.isQuietingDown()) {
+        def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
+        
+        if(!job_dsl_security.useScriptSecurity) {
+          job_dsl_security.useScriptSecurity = true
+          println 'Job DSL script security has changed.  It is now enabled.'
+          job_dsl_security.save()
+          j.save()
+        }
+        else {
+          println 'Nothing changed.  Job DSL script security already enabled.'
+        }
+    }
+    else {
+      println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
+    }
+  }
+
 }
