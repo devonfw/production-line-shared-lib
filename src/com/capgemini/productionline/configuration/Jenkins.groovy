@@ -1,20 +1,17 @@
-package com.capgemini.productionline.configuration.jenkins
+package com.capgemini.productionline.configuration
 
-// The following imports are needed for the credential objects
-import com.cloudbees.plugins.credentials.impl.*;
-import com.cloudbees.plugins.credentials.*;
-import com.cloudbees.plugins.credentials.domains.*;
-import org.jenkinsci.plugins.plaincredentials.*
-import org.jenkinsci.plugins.plaincredentials.impl.*
-import com.cloudbees.plugins.credentials.common.*
+import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.cloudbees.plugins.credentials.Credentials
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+
 import hudson.util.Secret
-import hudson.tools.*
-
-
-import jenkins.model.*;
-import com.cloudbees.jenkins.plugins.customtools.CustomTool;
-import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
-
+import hudson.tools.CommandInstaller
+import hudson.tools.InstallSourceProperty
+import hudson.tools.ToolProperty
+import jenkins.model.Jenkins
+import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -45,7 +42,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
     return credObj
   }
- 
+
   public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
@@ -152,6 +149,31 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
   }
 
   /**
+  This method approves all scripts that are waiting for Approval
+  */
+  public approvePendingScript() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingScript pending : sa.getPendingScripts()) {
+      sa.approveScript(pending.getHash());
+      println "Approved Script: " + pending.script
+    }
+  }
+
+  /**
+  This method approves all signature that are waiting for Approval
+  */
+  public approvePendingSignature() {
+    ScriptApproval sa = ScriptApproval.get();
+
+    // approve scripts
+    for (ScriptApproval.PendingSignature pending : sa.getPendingSignatures()) {
+      sa.approveSignature(pending.signature);
+      println "Approved Signature: " + pending.signature
+    }
+  }
+  /**
    * Method for restarting jenkins
    * <p>
    *    perform a restart of the jenkins instance. This is necessary when for e.g. a new plugin is installed. The restart should allway be performed at the end of the configuration.
@@ -170,5 +192,51 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
   //Restart jenkins instantely
   public restartJenkins() {
     restartJenkins( false )
+  }
+
+  //JOBDSl cannot run automatically if security is enabled!
+  public disableJobDSLScriptSecurity(){
+
+    Jenkins j = Jenkins.instance
+
+    if(!j.isQuietingDown()) {
+        def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
+        
+        if(job_dsl_security.useScriptSecurity) {
+          job_dsl_security.useScriptSecurity = false
+          println 'Job DSL script security has changed.  It is now disabled.'
+          job_dsl_security.save()
+          j.save()
+        }
+        else {
+          println 'Nothing changed.  Job DSL script security already disabled.'
+        }
+    }
+    else {
+      println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
+    }
+  }
+
+  //JOBDSl cannot run automatically if security is enabled!
+  public enableJobDSLScriptSecurity(){
+
+    Jenkins j = Jenkins.instance
+
+    if(!j.isQuietingDown()) {
+        def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
+        
+        if(!job_dsl_security.useScriptSecurity) {
+          job_dsl_security.useScriptSecurity = true
+          println 'Job DSL script security has changed.  It is now enabled.'
+          job_dsl_security.save()
+          j.save()
+        }
+        else {
+          println 'Nothing changed.  Job DSL script security already enabled.'
+        }
+    }
+    else {
+      println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
+    }
   }
 }

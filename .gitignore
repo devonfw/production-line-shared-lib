@@ -1,0 +1,16 @@
+*.class
+*.classpath
+*.project
+*.iml
+*.log
+*.bak
+*.jar
+*.war
+*.ear
+.*
+target/
+eclipse-target/
+**/src/generated/
+**/tmp/
+
+hs_err_pid*
