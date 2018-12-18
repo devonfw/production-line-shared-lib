@@ -8,19 +8,25 @@ import org.jenkinsci.plugins.plaincredentials.*
 import org.jenkinsci.plugins.plaincredentials.impl.*
 import com.cloudbees.plugins.credentials.common.*
 import hudson.util.Secret
+import hudson.tools.*
 
-// The following imports are needed jenkins plugin installation
-import jenkins.model.*
+
+import jenkins.model.*;
+import com.cloudbees.jenkins.plugins.customtools.CustomTool;
+import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig;
+
 
 /**
- * Contains the configuration methods of the 'Jenkins' component.
+ * Contains the configuration methods of the jenkins component
+ * <p>
+ *     The main purpose collecting configuration methods.
  *
  * Created by tlohmann on 19.10.2018.
  */
  class JenkinsConfiguration implements Serializable {
   /**
    * Method for creating a global credential object in the jenkins context.
-   * 
+   * <p>
    * @param id
    *    uniqe id for references in Jenkins
    * @param desc
@@ -29,7 +35,6 @@ import jenkins.model.*
    *    username of the credentials object.
    * @param password
    *    password of the credentials object.
-   * @return A 'UsernamePasswordCredentialsImpl' object that contains the given username and password.
    */
   public UsernamePasswordCredentialsImpl createCredatialObjectUsernamePassword(String id, String desc, String username, String password) {
     // create credential object
@@ -41,17 +46,68 @@ import jenkins.model.*
     return credObj
   }
  
-  public deleteCredatialObject(String id) {
+  public deleteCredentialObject(String id) {
     println "Deleting credential " + id + " in global store"
     // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
   }
- 
+
+  /**
+  * Method for adding a custom tool the Jenkins installation.
+  * <p>
+  * @param toolName
+  *    uniqe name for the tool to be added
+  * @param commandLabel
+  *    label used to reference the install command
+  * @param homeDir
+  *    Home directory for the tool to be installed.
+  * @param filePath
+  *    file path where the installation script should be made available.
+  * @param exportedPaths
+  *    Exported paths for the tool to be installed.
+  * @param toolHome
+  *    Home directory .
+  * @param additionalVariables
+  *    Additional variables if available.
+  */
+  public Boolean addCustomTool(String toolName, String commandLabel, String homeDir, String filePath, String exportedPaths, String toolHome, String additionalVariables){
+
+     def jenkinsExtensionList  = Jenkins.getInstance().getExtensionList(com.cloudbees.jenkins.plugins.customtools.CustomTool.DescriptorImpl.class)[0]
+
+     def installs = jenkinsExtensionList.getInstallations()
+     def found = installs.find {
+       it.name == toolName
+     }
+
+     if ( found ) {
+       println toolName + " is already installed. Nothing to do."
+       return false
+       } else {
+         println "installing " + toolName + " tool"
+
+         List installers = new ArrayList();
+
+         // read the file content from
+         File file = new File(filePath)
+
+          installers.add(new CommandInstaller(commandLabel, file.text, toolHome))
+          List<ToolProperty> properties = new ArrayList<ToolProperty>()
+          properties.add(new InstallSourceProperty(installers))
+
+         def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
+         installs += newI
+
+         jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
+
+         jenkinsExtensionList.save()
+
+         return true;
+       }
+     }
 
   /**
    * Method for installing a jenkins plugin
-   * 
-   * Installs the given list of Jenkins plugins if not installed already. Before installing a plugin, the UpdateCenter is updated.
-   * 
+   * <p>
+   *    Installs the given list of Jenkins plugins if not installed already. Before installing a plugin, the UpdateCenter is updated.
    * @param pluginsToinstall
    *    list of plugins to install
    * @return
@@ -97,20 +153,21 @@ import jenkins.model.*
 
   /**
    * Method for restarting jenkins
-   * 
-   * Perform a restart of the jenkins instance. This is necessary when for e.g. a new plugin is installed. The restart should allway be performed at the end of the configuration.
-   * 
+   * <p>
+   *    perform a restart of the jenkins instance. This is necessary when for e.g. a new plugin is installed. The restart should allway be performed at the end of the configuration.
    * @param safeRestart
    *    Optional Boolean parameter stating if the restart should be safe (default: false)
    */
   public restartJenkins( safeRestart ) {
     def instance = Jenkins.getInstance()
-    if ( safeRestart ) { 
+    if ( safeRestart ) {
       instance.safeRestart()
     } else {
       instance.restart()
     }
   }
+
+  //Restart jenkins instantely
   public restartJenkins() {
     restartJenkins( false )
   }
