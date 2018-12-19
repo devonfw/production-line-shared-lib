@@ -1,7 +1,11 @@
-== SharedLib for Production Line
+= SharedLib for Production Line
+:imagesdir: doc/assets/images
 
-This is the base library to work with a Production Line
+This project is a Jenkins Shared Library ( see https://jenkins.io/doc/book/pipeline/shared-libraries/ ) which provides several methods to do a pre-configuration of the 'Production Line'.
 
+:toc:
+
+== Introduction
 The global lib structure is package based and the hierarchy is as follows:
 
 [source]
@@ -19,9 +23,28 @@ com
          \- deployment (common functions used during the deployment process)
 ----
 
-For further information (like usage examples) please have a look in the ```doc/configuration``` folder of this repository.
-Currently available configuration packages:
+For further information (like usage examples) please have a look in the ```doc/configuration``` folder of this repository. To find detailed information about the available methods please take a look at the *groovydoc* documentation in each class ( ```src/com/capgemini/productionline/configuration``` ).
 
-* Jenkins (```./doc/configuration/jenkins.asciidoc```)
-* GitLab (```./doc/configuration/gitlab.asciidoc```)
-* SonarQube (```./doc/configuration/sonarqube.asciidoc```)
+== How to use it
+
+=== Add the 'SharedLib for Production Line' to your Jenkins Instance
+
+To make all of the 'SharedLib for Production Line' methods available for Jobs, the project needs to be configured as a 'Global Pipeline Library' in a Jenkins Instance. The following steps describe this activity in detail:
+
+. Go to 'Manage Jenkins' image:ManageJenkinsScreenshot.png[Manage Jenkins Screenshot,float="left"]
+. Select 'Configure System' image:ConfigureSystemJenkinsScreenshot.png[Configure System Screenshot,float="right"]
+. Search for 'Global Pipeline Libraries'
+. Add the library image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot,float="right"]
+
+=== Build a new Job based on the template
+
+To use the 'SharedLib for Production Line' in a Jenkins-Job just create a new Pipeline and start using it as shown below.
+
+```Groovy
+@Library('ProductionLineTemplateLib')
+
+import com.capgemini.productionline.configuration.*
+Jenkins jenkinsConfiguration = new Jenkins();
+
+println jenkinsConfiguration.addCustomTool('gcc', 'cmd1', '/usr/bin/', '/hom/', 'bin', '/pwd/', null);
+```
