@@ -6,7 +6,7 @@ import org.junit.Test
 class SonarQubeTest {
 
   @Test
-  public void testSomething() {
+  public void test() {
     Object context = null
     SonarQube sq = new SonarQube(context, "username", "http://localhost:9000/");
     assert sq.username == "username"
