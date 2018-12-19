@@ -153,9 +153,12 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
   }
 
   /**
-  This method approves all scripts that are waiting for Approval
+    * <p>
+    *  This method approves all scripts that are waiting for Approval
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
   */
-  public approvePendingScript() {
+  public boolean approvePendingScripts() {
     ScriptApproval sa = ScriptApproval.get();
 
     // approve scripts
@@ -163,12 +166,16 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       sa.approveScript(pending.getHash());
       println "Approved Script: " + pending.script
     }
+    return true;
   }
 
   /**
-  This method approves all signature that are waiting for Approval
+    * <p>
+    *  This method approves all signatures that are waiting for Approval
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
   */
-  public approvePendingSignature() {
+  public boolean approvePendingSignatures() {
     ScriptApproval sa = ScriptApproval.get();
 
     // approve scripts
@@ -176,7 +183,25 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       sa.approveSignature(pending.signature);
       println "Approved Signature: " + pending.signature
     }
+    return true;
   }
+
+  /**
+    * <p>
+    *  This method approves a given Signature
+    * @param signature
+    *    The string representing the signature that needs to be approved.
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
+  */
+  public boolean approveSignature(String signature) {
+    def  ScriptApproval sa = ScriptApproval.get();
+    sa.approveSignature(signature);
+    sa.save();
+    return true;
+  }
+
+
   /**
    * Method for restarting jenkins
    * <p>
@@ -205,7 +230,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     if(!j.isQuietingDown()) {
         def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
-        
+
         if(job_dsl_security.useScriptSecurity) {
           job_dsl_security.useScriptSecurity = false
           println 'Job DSL script security has changed.  It is now disabled.'
@@ -228,7 +253,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     if(!j.isQuietingDown()) {
         def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
-        
+
         if(!job_dsl_security.useScriptSecurity) {
           job_dsl_security.useScriptSecurity = true
           println 'Job DSL script security has changed.  It is now enabled.'
