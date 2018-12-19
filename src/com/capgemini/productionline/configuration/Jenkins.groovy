@@ -201,6 +201,22 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
     return true;
   }
 
+  /**
+    * <p>
+    *  This method approves signatures stored in a given file.
+    * @param filePath
+    *    The string representing the file path where the signature are stored.
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
+  */
+  public boolean approveSignatureFromFile(String filePath) {
+    def  ScriptApproval sa = ScriptApproval.get();
+    File file = new File(filePath)
+    sa.approveSignature(file.text);
+    sa.save();
+    return true;
+  }
+
 
   /**
    * Method for restarting jenkins
