@@ -1,5 +1,22 @@
 package com.capgemini.productionline.configuration.jenkins
 
+
+// The following imports are needed for the credential objects
+import com.cloudbees.plugins.credentials.impl.*;
+import com.cloudbees.plugins.credentials.*;
+import com.cloudbees.plugins.credentials.domains.*;
+import org.jenkinsci.plugins.plaincredentials.*
+import org.jenkinsci.plugins.plaincredentials.impl.*
+import com.cloudbees.plugins.credentials.common.*
+import hudson.util.Secret
+import hudson.tools.*
+import org.jenkinsci.plugins.scriptsecurity.scripts.*
+
+// below packages is used by the method addNodeJS_Version
+import jenkins.model.*
+import hudson.model.*
+import jenkins.plugins.nodejs.tools.*
+
 import com.cloudbees.jenkins.plugins.customtools.CustomTool
 import com.cloudbees.plugins.credentials.Credentials
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
@@ -214,6 +231,50 @@ import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
     return true;
   }
 
+  /**
+    * <p>
+    *  This method add a new NodeJS version using the NodeJS plugin. .
+    * @param @required installName
+    *    Name that should be diplay to identity the installation
+    * @param @required nodeJS_Version
+    *    NodeJS Version that should be installed.
+    * @param @optional npmPackages
+    *    List of npm packages that should be used.
+    * @param @optional home
+    *    Home
+    * @param @optional npmPackagesRefreshHours
+    *
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+  public boolean addNodeJS_Version(String installName, String nodeJS_Version, String npmPackages="", String home="", long npmPackagesRefreshHours=100) {
+
+    def inst = Jenkins.getInstance()
+
+    def desc = inst.getDescriptor("jenkins.plugins.nodejs.tools.NodeJSInstallation")
+
+    def installations = [];
+
+    // Iteration over already exiting installation, they will be added to the installation list
+    for (i in desc.getInstallations()) {
+    	installations.push(i)
+    }
+
+    try {
+    def installer = new NodeJSInstaller(nodeJS_Version, npmPackages, npmPackagesRefreshHours)
+    def installerProps = new InstallSourceProperty([installer])
+    def installation = new NodeJSInstallation(installName, home, [installerProps])
+    installations.push(installation)
+
+    desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
+
+    desc.save()
+    } catch(Exception ex) {
+         println("Installation error  ");
+         return false;
+    }
+    return true
+  }
 
   /**
    * Method for restarting jenkins
