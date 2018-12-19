@@ -2,9 +2,26 @@
 package com.capgemini.productionline.configuration;
 
 class SonarQube implements Serializable {
-    def String username;
-    def String sonarQubeBaseUrl;
-    def context;
+    def String username
+    def String sonarQubeBaseUrl
+    def context
+
+    /**
+    * Initiate a new 'SonarQube' instance by providing a username and the SonarQube base URL.
+    * <p>
+    * @param context
+    *    The pipeline context (usually the parameter should be set to 'this')
+    * @param username
+    *    A valid SonarQube username.
+    * @param sonarQubeBaseUrl
+    *    The base URL of the SonarQube server.
+    * </p>
+    */
+    SonarQube(context, String username)  {
+        this.context = context
+        this.username = username
+        this.sonarQubeBaseUrl = ProductionLineGlobals.SONARQUBE_BASE_URL
+    }
 
     /**
     * Initiate a new 'SonarQube' instance by providing a username and the SonarQube base URL.
@@ -18,9 +35,9 @@ class SonarQube implements Serializable {
     * </p>
     */
     SonarQube(context, String username, String sonarQubeBaseUrl)  {
-        this.context = context;
-        this.username = username;
-        this.sonarQubeBaseUrl = sonarQubeBaseUrl;
+        this.context = context
+        this.username = username
+        this.sonarQubeBaseUrl = sonarQubeBaseUrl
     }
 
     /**
@@ -33,7 +50,7 @@ class SonarQube implements Serializable {
     * </p>
     */
     def getAuthToken(String tokenName) {
-        def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: 'http://sonarqube-core:9000/sonarqube/api/user_tokens/generate?name=' + tokenName
+        def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: this.sonarQubeBaseUrl + '/api/user_tokens/generate?name=' + tokenName
         def parsedJsonResponse = this.context.readJSON text: response.getContent()
 
         // Return a token 
