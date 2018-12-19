@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.capgemini.productionlineine</groupId>
+  <groupId>com.capgemini.productionline</groupId>
   <artifactId>pl-sharedlib</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -29,9 +29,19 @@
       <version>2.1.16</version>
     </dependency>
     <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>http_request</artifactId>
+      <version>1.8.22</version>
+    </dependency>
+    <dependency>
       <groupId>com.cloudbees.jenkins.plugins</groupId>
       <artifactId>custom-tools-plugin</artifactId>
       <version>0.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>script-security</artifactId>
+      <version>1.49</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -81,6 +91,13 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>2.22.1</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <failIfNoTests>true</failIfNoTests>
           <includes>

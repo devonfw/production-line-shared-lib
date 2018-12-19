@@ -1,4 +1,21 @@
-package com.capgemini.productionline.configuration
+package com.capgemini.productionline.configuration.jenkins
+
+
+// The following imports are needed for the credential objects
+import com.cloudbees.plugins.credentials.impl.*;
+import com.cloudbees.plugins.credentials.*;
+import com.cloudbees.plugins.credentials.domains.*;
+import org.jenkinsci.plugins.plaincredentials.*
+import org.jenkinsci.plugins.plaincredentials.impl.*
+import com.cloudbees.plugins.credentials.common.*
+import hudson.util.Secret
+import hudson.tools.*
+import org.jenkinsci.plugins.scriptsecurity.scripts.*
+
+// below packages is used by the method addNodeJS_Version
+import jenkins.model.*
+import hudson.model.*
+import jenkins.plugins.nodejs.tools.*
 
 import com.cloudbees.jenkins.plugins.customtools.CustomTool
 import com.cloudbees.plugins.credentials.Credentials
@@ -9,9 +26,10 @@ import hudson.util.Secret
 import hudson.tools.CommandInstaller
 import hudson.tools.InstallSourceProperty
 import hudson.tools.ToolProperty
+
 import jenkins.model.Jenkins
-import com.cloudbees.jenkins.plugins.customtools.CustomTool
-import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+
+import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -149,9 +167,12 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
   }
 
   /**
-  This method approves all scripts that are waiting for Approval
+    * <p>
+    *  This method approves all scripts that are waiting for Approval
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
   */
-  public approvePendingScript() {
+  public boolean approvePendingScripts() {
     ScriptApproval sa = ScriptApproval.get();
 
     // approve scripts
@@ -159,12 +180,16 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       sa.approveScript(pending.getHash());
       println "Approved Script: " + pending.script
     }
+    return true;
   }
 
   /**
-  This method approves all signature that are waiting for Approval
+    * <p>
+    *  This method approves all signatures that are waiting for Approval
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
   */
-  public approvePendingSignature() {
+  public boolean approvePendingSignatures() {
     ScriptApproval sa = ScriptApproval.get();
 
     // approve scripts
@@ -172,7 +197,85 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       sa.approveSignature(pending.signature);
       println "Approved Signature: " + pending.signature
     }
+    return true;
   }
+
+  /**
+    * <p>
+    *  This method approves a given Signature
+    * @param signature
+    *    The string representing the signature that needs to be approved.
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
+  */
+  public boolean approveSignature(String signature) {
+    def  ScriptApproval sa = ScriptApproval.get();
+    sa.approveSignature(signature);
+    sa.save();
+    return true;
+  }
+
+  /**
+    * <p>
+    *  This method approves signatures stored in a given file.
+    * @param filePath
+    *    The string representing the file path where the signature are stored.
+    * @return
+    *    Boolean value which reflects wether the signature has been added or not
+  */
+  public boolean approveSignatureFromFile(String filePath) {
+    def  ScriptApproval sa = ScriptApproval.get();
+    File file = new File(filePath)
+    sa.approveSignature(file.text);
+    sa.save();
+    return true;
+  }
+
+  /**
+    * <p>
+    *  This method add a new NodeJS version using the NodeJS plugin. .
+    * @param @required installName
+    *    Name that should be diplay to identity the installation
+    * @param @required nodeJS_Version
+    *    NodeJS Version that should be installed.
+    * @param @optional npmPackages
+    *    List of npm packages that should be used.
+    * @param @optional home
+    *    Home
+    * @param @optional npmPackagesRefreshHours
+    *
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+  public boolean addNodeJS_Version(String installName, String nodeJS_Version, String npmPackages="", String home="", long npmPackagesRefreshHours=100) {
+
+    def inst = Jenkins.getInstance()
+
+    def desc = inst.getDescriptor("jenkins.plugins.nodejs.tools.NodeJSInstallation")
+
+    def installations = [];
+
+    // Iteration over already exiting installation, they will be added to the installation list
+    for (i in desc.getInstallations()) {
+    	installations.push(i)
+    }
+
+    try {
+    def installer = new NodeJSInstaller(nodeJS_Version, npmPackages, npmPackagesRefreshHours)
+    def installerProps = new InstallSourceProperty([installer])
+    def installation = new NodeJSInstallation(installName, home, [installerProps])
+    installations.push(installation)
+
+    desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
+
+    desc.save()
+    } catch(Exception ex) {
+         println("Installation error  ");
+         return false;
+    }
+    return true
+  }
+
   /**
    * Method for restarting jenkins
    * <p>
@@ -201,7 +304,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     if(!j.isQuietingDown()) {
         def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
-        
+
         if(job_dsl_security.useScriptSecurity) {
           job_dsl_security.useScriptSecurity = false
           println 'Job DSL script security has changed.  It is now disabled.'
@@ -224,7 +327,7 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 
     if(!j.isQuietingDown()) {
         def job_dsl_security = j.getExtensionList('javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration')[0]
-        
+
         if(!job_dsl_security.useScriptSecurity) {
           job_dsl_security.useScriptSecurity = true
           println 'Job DSL script security has changed.  It is now enabled.'
