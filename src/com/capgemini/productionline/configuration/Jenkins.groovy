@@ -284,5 +284,4 @@ import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
       println 'Shutdown mode enabled.  Configure Job DSL script security SKIPPED.'
     }
   }
-
 }
