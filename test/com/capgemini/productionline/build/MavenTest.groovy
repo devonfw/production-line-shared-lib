@@ -18,9 +18,12 @@ class MavenTest {
     def settingsSecurity = new File(maven.m2, "settings-security.xml")
     assert settingsSecurity.isFile()
     def xml = new XmlSlurper().parse(settingsSecurity)
-    def encryptedPassword = xml.master.text()
-    assert encryptedPassword.length() == 66
-    assert encryptedPassword ==~ /\{[^}]{64}\}/
+    def masterPassword = xml.master.text()
+    assert masterPassword.length() == 66
+    assert masterPassword ==~ /\{[^}]{64}\}/
+
+    def encryptedPassword = maven.encryptPassword('$€Ç®€†')
+    assert encryptedPassword ==~ /\{[^}]{44}\}/
     maven.m2.deleteDir()
   }
 }
