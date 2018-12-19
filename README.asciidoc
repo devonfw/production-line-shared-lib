@@ -4,7 +4,7 @@
 
 This project is a Jenkins Shared Library ( see https://jenkins.io/doc/book/pipeline/shared-libraries/ ) which provides several methods to do a pre-configuration of the 'Production Line'.
 
-:toc:
+toc::[]
 
 == Introduction
 The global lib structure is package based and the hierarchy is as follows:
