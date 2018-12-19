@@ -32,6 +32,7 @@ class Maven {
     def command = this.mvn + ' --encrypt-master-password ' + password
     def process = command.execute()
     def encryptedPassword = process.text
+    process.waitFor()
     if (process.exitValue()) {
       println "maven --encrypt-master-password gave the following error: "
       println "[ERROR] ${process.getErrorStream()}"
@@ -60,6 +61,7 @@ class Maven {
     def command = this.mvn + ' --encrypt-password ' + password
     def process = command.execute()
     def encryptedPassword = process.text
+    process.waitFor()
     if (process.exitValue()) {
       println "maven --encrypt-password gave the following error: "
       println "[ERROR] ${process.getErrorStream()}"
