@@ -12,6 +12,10 @@ import hudson.util.Secret
 import hudson.tools.*
 import org.jenkinsci.plugins.scriptsecurity.scripts.*
 
+// The below packages are used by the method installing Allure configurations.
+import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstaller;
+import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstallation;
+
 // below packages is used by the method addNodeJS_Version
 import jenkins.model.*
 import hudson.model.*
@@ -270,6 +274,47 @@ import hudson.plugins.sonar.model.TriggersConfig
     installations.push(installation)
 
     desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
+
+    desc.save()
+    } catch(Exception ex) {
+         println("Installation error  ");
+         return false;
+    }
+    return true
+  }
+
+  /**
+    * <p>
+    *  This method add a new configuration for the Allure Plugin...
+    * @param @required mavenVersion
+    *    Maven version that should be used to configure the plugin
+    * @param @required commandLineInstallerName
+    *    Name that should be used to identify the new configuration
+    * @param @optional home
+    *    Home
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+  public boolean addAllurePluginConfig(String mavenVersion, String commandLineInstallerName, String home="") {
+
+    def inst = Jenkins.getInstance()
+
+    def desc = inst.getDescriptor("ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstallation")
+
+    def installations = [];
+
+    // Iteration over already exiting installation, they will be added to the installation list
+    for (i in desc.getInstallations()) {
+    	installations.push(i)
+    }
+
+    try {
+    def installer = new AllureCommandlineInstaller(mavenVersion)
+    def installerProps = new InstallSourceProperty([installer])
+    def installation = new AllureCommandlineInstallation(installName, home, [installerProps])
+    installations.push(installation)
+
+    desc.setInstallations(installations.toArray(new AllureCommandlineInstallation[0]))
 
     desc.save()
     } catch(Exception ex) {
