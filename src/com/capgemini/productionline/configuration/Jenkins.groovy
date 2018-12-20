@@ -31,6 +31,9 @@ import jenkins.model.Jenkins
 
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 
+import hudson.plugins.sonar.*
+import hudson.plugins.sonar.model.TriggersConfig
+
 /**
  * Contains the configuration methods of the jenkins component
  * <p>
@@ -274,6 +277,70 @@ import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
          return false;
     }
     return true
+  }
+
+  /**
+    * <p>
+    *  This method add a new Sonarqube server to the jenkins Configuration .
+    * @param @required sonar_name
+    *    String used to identify the new server that should be added.
+    * @param @required sonar_server_url
+    *    URL of the Sonarqube server.
+    * @param @required sonar_auth_token
+    *    Token used to communicate with the sonarqube server.
+    * @param @optional sonar_mojo_version
+    *    sonar_mojo_version
+    * @param @optional sonar_additional_properties
+    * @param @optional sonar_triggers
+    * @param @optional sonar_additional_analysis_properties
+    *
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+
+  public boolean addSonarqubeServer(String sonar_name, String sonar_server_url, String sonar_auth_token, String sonar_mojo_version="", String sonar_additional_properties="", sonar_triggers = new TriggersConfig(), String sonar_additional_analysis_properties="") {
+    def instance = Jenkins.getInstance()
+
+    def SonarGlobalConfiguration sonar_conf = instance.getDescriptor(SonarGlobalConfiguration)
+
+    def sonar_inst = new SonarInstallation(
+        sonar_name,
+        sonar_server_url,
+        sonar_auth_token,
+        sonar_mojo_version,
+        sonar_additional_properties,
+        sonar_triggers,
+        sonar_additional_analysis_properties
+    )
+
+    // Get the list of all sonarQube global configurations.
+    def sonar_installations = sonar_conf.getInstallations()
+
+    def sonar_inst_exists = false
+
+    // Check if our installation is already present in the configuration
+    sonar_installations.each {
+        installation = (SonarInstallation) it
+        if (sonar_inst.getName() == installation.getName()) {
+            sonar_inst_exists = true
+            println("Found existing installation: " + installation.getName())
+            return false;
+        }
+    }
+
+    // Add the new server to the server list when not exsiting.
+    if (!sonar_inst_exists) {
+        sonar_installations += sonar_inst
+        sonar_conf.setInstallations((SonarInstallation[]) sonar_installations)
+        try {
+          sonar_conf.save()
+        } catch(Exception ex) {
+             println("Installation error  ");
+             return false;
+        }
+
+      return true;
+    }
   }
 
   /**
