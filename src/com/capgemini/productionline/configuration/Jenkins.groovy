@@ -311,7 +311,7 @@ import hudson.plugins.sonar.model.TriggersConfig
     try {
     def installer = new AllureCommandlineInstaller(mavenVersion)
     def installerProps = new InstallSourceProperty([installer])
-    def installation = new AllureCommandlineInstallation(installName, home, [installerProps])
+    def installation = new AllureCommandlineInstallation(commandLineInstallerName, home, [installerProps])
     installations.push(installation)
 
     desc.setInstallations(installations.toArray(new AllureCommandlineInstallation[0]))
