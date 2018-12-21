@@ -38,6 +38,9 @@ import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 import hudson.plugins.sonar.*
 import hudson.plugins.sonar.model.TriggersConfig
 
+import hudson.tasks.Maven.MavenInstaller
+import hudson.tasks.Maven.MavenInstallation
+
 /**
  * Contains the configuration methods of the jenkins component
  * <p>
@@ -324,6 +327,49 @@ import hudson.plugins.sonar.model.TriggersConfig
     return true
   }
 
+  
+ /**
+    * <p>
+    *  This method add a new Maven config to the jenkins Configuration .
+    * @param @required mavenName
+    *    String used to identify the new Maven config.
+    * @param @required MavenVersion
+    *    Maven Version.
+    *
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */  
+  
+  public boolean addMavenPluginConfig(String mavenVersion, String mavenName) {
+
+  println("Checking Maven installations...")
+ 
+// Grab the Maven "task" (which is the plugin handle).
+def mavenPlugin = Jenkins.instance.getExtensionList(hudson.tasks.Maven.DescriptorImpl.class)[0]
+ 
+// Check for a matching installation.
+def maven3Install = mavenPlugin.installations.find {
+    install -> install.name.equals(mavenName)
+}
+ 
+// If no match was found, add an installation.
+if(maven3Install == null) {
+    println("No Maven install found. Adding...")
+ 
+  def newMavenInstall = new hudson.tasks.Maven.MavenInstallation(mavenName, null,
+        [new hudson.tools.InstallSourceProperty([new hudson.tasks.Maven.MavenInstaller(mavenVersion)])]
+    )
+ 
+    mavenPlugin.installations += newMavenInstall
+    mavenPlugin.save()
+ 
+    println("Maven install added.")
+} else {
+    println("Maven install found. Done.")
+}
+  
+}
+  
   /**
     * <p>
     *  This method add a new Sonarqube server to the jenkins Configuration .
