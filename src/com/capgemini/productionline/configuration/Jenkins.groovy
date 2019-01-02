@@ -410,6 +410,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
    *    false => the password should not be read from a file and the parameter artifactoryPassword is the password that will be used.
    */
   def boolean addServerCredentialsToStore(String username, String artifactoryPassword, String credentialID, String description, boolean readFromFile=false) {
+    approveSignature("staticMethod com.cloudbees.plugins.credentials.domains.Domain")
     def domain = Domain.global()
     def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
 
@@ -456,12 +457,13 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
    *    ID that we want to check the exsitance in the system crendential store
    */
   def checkCredentialInStore(String credentialsID) {
+    approveSignature("staticMethod com.cloudbees.plugins.credentials.domains.Domain")
     def domain = Domain.global()
 
     def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-    return store
-    // value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
-    // return value != null;
+
+    value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
+    return value != null;
   }
 
   /**
