@@ -38,6 +38,11 @@ import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 import hudson.plugins.sonar.*
 import hudson.plugins.sonar.model.TriggersConfig
 
+import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
+
+import org.jenkinsci.plugins.configfiles.maven.*
+import org.jenkinsci.plugins.configfiles.maven.security.*
+
 /**
  * Contains the configuration methods of the jenkins component
  * <p>
@@ -386,6 +391,77 @@ import hudson.plugins.sonar.model.TriggersConfig
 
       return true;
     }
+  }
+
+  /**
+   * <p>
+   *    The method adds a server credential to the Maven server Configuration
+   * @param username
+   *    Username to be added
+   * @param artifactoryPassword
+   *    password. Should be either the password or a path to the file containing the password. The parameter readFromFile described below should be properly set.
+   * @param credentialID
+   *    ID referencing the credential
+   * @param description
+   *    Credential description 
+   * @param readFromFile
+   *    This flag indicates wether the password should be read from a file or is directly given as a parameter.
+   *    true => The password should be read from a file. In this case the parameter artifactoryPassword is the path to the file, should be made accessible from the script
+   *    false => the password should not be read from a file and the parameter artifactoryPassword is the password that will be used.
+   */
+  def boolean addServerCredentialsToStore(String username, String artifactoryPassword, String credentialID, String description, boolean readFromFile=false) {
+    def domain = Domain.global()
+    def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+
+    if (readFromFile) {
+      artifactoryPassword = new File(artifactoryPassword).text.trim()
+    }
+
+    def user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, credentialID, description, username, artifactoryPassword)
+
+    return store.addCredentials(domain, user)
+  }
+
+
+  /**
+   * <p>
+   *    The method adds a server credential to the Maven server Configuration
+   * @param configID
+   *    ID referencing the Maven Congiguration file
+   * @param serverID
+   *    ID referencing the server that should be added to the Server list.
+   * @param credentialID
+   *    ID referencing the credential
+   */
+  def boolean addServerCredentialToMavenConfig(String configID="MavenSettings", String serverID, String credentialID) {
+    def configStore = Jenkins.instance.getExtensionList('org.jenkinsci.plugins.configfiles.GlobalConfigFiles')[0]
+
+    def cfg = configStore.getById("MavenSettings")
+
+    if (checkCredentialInStore(credentialID)) {
+      serverCredentialMapping = new ServerCredentialMapping(serverID, credentialID)
+      cfg.serverCredentialMappings.add(serverCredentialMapping)
+      return configStore.save(cfg)
+    }
+    else {
+      return false;
+    }
+  }
+
+
+  /**
+   * <p>
+   *    The method checks if a Credential Object with the given ID exists in the Jenkins System Credential Store
+   * @param credentialsID
+   *    ID that we want to check the exsitance in the system crendential store
+   */
+  def checkCredentialInStore(String credentialsID) {
+    def domain = Domain.global()
+
+    def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+
+    value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
+    return value != null;
   }
 
   /**
