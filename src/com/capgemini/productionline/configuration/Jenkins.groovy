@@ -459,8 +459,8 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
     def domain = Domain.global()
 
     def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-    println "Store:  " + store
-    println "domain:  " + domain
+    System.out.println "Store:  " + store
+    System.out.println "domain:  " + domain
     value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
     return value != null;
   }
