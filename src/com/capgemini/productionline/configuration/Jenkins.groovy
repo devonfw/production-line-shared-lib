@@ -222,7 +222,11 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
   */
   public boolean approveSignature(String signature) {
     def  ScriptApproval sa = ScriptApproval.get();
+    try {
     sa.approveSignature(signature);
+    } catch (IOException e) {
+    	println "Exception: " + e.getMessage()
+    }
     sa.save();
     return true;
   }
@@ -238,7 +242,11 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
   public boolean approveSignatureFromFile(String filePath) {
     def  ScriptApproval sa = ScriptApproval.get();
     File file = new File(filePath)
-    sa.approveSignature(file.text);
+    try {
+    sa.approveSignature(signature);
+    } catch (IOException e) {
+    	println "Exception: " + e.getMessage()
+    }
     sa.save();
     return true;
   }
