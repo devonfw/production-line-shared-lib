@@ -403,7 +403,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
    * @param credentialID
    *    ID referencing the credential
    * @param description
-   *    Credential description 
+   *    Credential description
    * @param readFromFile
    *    This flag indicates wether the password should be read from a file or is directly given as a parameter.
    *    true => The password should be read from a file. In this case the parameter artifactoryPassword is the path to the file, should be made accessible from the script
@@ -459,7 +459,8 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
     def domain = Domain.global()
 
     def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-
+    println "Store:  " + store
+    println "domain:  " + domain
     value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
     return value != null;
   }
