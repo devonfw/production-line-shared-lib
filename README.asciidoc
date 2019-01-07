@@ -1,9 +1,10 @@
 = SharedLib for Production Line
 :imagesdir: doc/assets/images
+:toc: macro
 
 This project is a Jenkins Shared Library ( see https://jenkins.io/doc/book/pipeline/shared-libraries/ ) which provides several methods to do a pre-configuration of the 'Production Line'.
 
-:toc:
+toc::[]
 
 == Introduction
 The global lib structure is package based and the hierarchy is as follows:
@@ -23,7 +24,7 @@ com
          \- deployment (common functions used during the deployment process)
 ----
 
-For further information (like usage examples) please have a look in the ```doc/configuration``` folder of this repository. To find detailed information about the available methods please take a look at the *groovydoc* documentation in each class ( ```src/com/capgemini/productionline/configuration``` ).
+For further information (like usage examples) please have a look in the `doc/configuration` folder of this repository. To find detailed information about the available methods please take a look at the *groovydoc* documentation in each class ( `src/com/capgemini/productionline/configuration` ).
 
 == How to use it
 
