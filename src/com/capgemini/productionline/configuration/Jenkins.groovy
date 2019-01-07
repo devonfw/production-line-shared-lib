@@ -403,7 +403,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
 
   /**
    * <p>
-   *    The method adds a server credential to the Maven server Configuration
+   *    The method adds a server credential to the Jenkins credential store
    * @param username
    *    Username to be added
    * @param artifactoryPassword
