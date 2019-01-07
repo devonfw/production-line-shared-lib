@@ -116,7 +116,7 @@ import hudson.plugins.sonar.model.TriggersConfig
           properties.add(new InstallSourceProperty(installers))
 
          def newI = new CustomTool(toolName, homeDir, properties, exportedPaths, null, ToolVersionConfig.DEFAULT, additionalVariables)
-         installs += ne
+         installs += newI
 
          jenkinsExtensionList.setInstallations( (com.cloudbees.jenkins.plugins.customtools.CustomTool[])installs );
 
