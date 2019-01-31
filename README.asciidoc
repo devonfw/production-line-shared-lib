@@ -37,6 +37,12 @@ To make all of the 'SharedLib for Production Line' methods available for Jobs, t
 . Search for 'Global Pipeline Libraries'
 . Add the library image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot,float="right"]
 
+=== Install plugins used by library
+* Allure Jenkins Plugin
+*	NodeJS Plugin
+* Job DSL
+* HTTP Request Plugin
+
 === Build a new Job based on the template
 
 To use the 'SharedLib for Production Line' in a Jenkins-Job just create a new Pipeline and start using it as shown below.
@@ -47,5 +53,4 @@ To use the 'SharedLib for Production Line' in a Jenkins-Job just create a new Pi
 import com.capgemini.productionline.configuration.*
 Jenkins jenkinsConfiguration = new Jenkins();
 
-println jenkinsConfiguration.addCustomTool('gcc', 'cmd1', '/usr/bin/', '/hom/', 'bin', '/pwd/', null);
 ```
