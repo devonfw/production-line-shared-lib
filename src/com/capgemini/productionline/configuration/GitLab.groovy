@@ -51,6 +51,12 @@ class GitLab implements Serializable {
     this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: "${gitlabHostUrl}/api/v4/projects?name="+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")+'&import_url='+importurl+'&visibility='+visibility
   }
 
+  public createProject(String groupname, String projectname, String projectpath, String projectdescription, String branchname, String visibility) {
+    def groupid = getGroupId(groupname)
+    // create project in target group
+    this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: "${gitlabHostUrl}/api/v4/projects?name="+projectname+'&path='+projectpath+'&namespace_id='+groupid+'&default_branch='+branchname+'&description='+java.net.URLEncoder.encode(projectdescription, "UTF-8")+'&visibility='+visibility
+  }
+
   //Creates a new branch in a gitlab project
   public createBranch(String group, String project, String from, String branchname) {
     def projectid = getProjectId(groupname)
