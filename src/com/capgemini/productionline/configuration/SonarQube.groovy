@@ -2,8 +2,8 @@
 package com.capgemini.productionline.configuration;
 
 class SonarQube implements Serializable {
-    def String username
-    def String sonarQubeBaseUrl
+    String username
+    String sonarQubeBaseUrl
     def context
 
     /**
