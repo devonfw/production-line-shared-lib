@@ -280,13 +280,18 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
     def desc = inst.getDescriptor("jenkins.plugins.nodejs.tools.NodeJSInstallation")
 
     def installations = [];
+    def install = true
 
     // Iteration over already exiting installation, they will be added to the installation list
     for (i in desc.getInstallations()) {
     	installations.push(i)
+
+      if (i.name == installName) {
+        install = false
+      }
     }
 
-    if (!installations.contains(installName)) {
+    if (install) {
       try {
         def installer = new NodeJSInstaller(nodeJS_Version, npmPackages, npmPackagesRefreshHours)
         def installerProps = new InstallSourceProperty([installer])
