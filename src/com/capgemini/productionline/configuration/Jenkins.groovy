@@ -286,19 +286,22 @@ import org.jenkinsci.plugins.configfiles.maven.security.*
     	installations.push(i)
     }
 
-    try {
-    def installer = new NodeJSInstaller(nodeJS_Version, npmPackages, npmPackagesRefreshHours)
-    def installerProps = new InstallSourceProperty([installer])
-    def installation = new NodeJSInstallation(installName, home, [installerProps])
-    installations.push(installation)
+    if (!installations.contains(installName)) {
+      try {
+        def installer = new NodeJSInstaller(nodeJS_Version, npmPackages, npmPackagesRefreshHours)
+        def installerProps = new InstallSourceProperty([installer])
+        def installation = new NodeJSInstallation(installName, home, [installerProps])
+        installations.push(installation)
 
-    desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
+        desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
 
-    desc.save()
-    } catch(Exception ex) {
-         println("Installation error  ");
-         return false;
+        desc.save()
+      } catch(Exception ex) {
+        println("Installation error  ");
+        return false;
+      }
     }
+    
     return true
   }
 
