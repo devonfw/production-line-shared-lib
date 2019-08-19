@@ -49,7 +49,7 @@ import org.jenkinsci.plugins.configfiles.maven.*
 import org.jenkinsci.plugins.configfiles.maven.security.*
 import org.jenkinsci.plugins.ansible.AnsibleInstallation
 import hudson.tools.CommandInstaller
-
+import hudson.plugins.sshslaves.verifiers.*
 
 
 /**
