@@ -51,6 +51,7 @@ import org.jenkinsci.plugins.ansible.AnsibleInstallation
 import hudson.tools.CommandInstaller
 
 
+
 /**
  * Contains the configuration methods of the jenkins component
  * <p>
@@ -558,7 +559,48 @@ if(maven3Install == null) {
       return false;
     }
   }
+  
+  /**
+   * <p>
+   *    The method adds a SSH credential to the Jenkins credential store
+   * @param userName
+   *    Username to be added
+   * @param secret
+   *    Secret used inside SSH
+   * @param credentialID
+   *    ID referencing the credential
+   * @param description
+   *    Credential description
+   * @param SSH_KEY
+   *    Provided SSH key
+   */
 
+  def boolean addJenkinsSshCredentials(String description, String credentialID, String secret, String userName, String SSH_KEY) {
+    approveSignature("staticMethod com.cloudbees.plugins.credentials.domains.Domain")
+
+    def jenkinsMasterKeyParameters = [
+      description:  description,
+      id:           credentialID,
+      secret:       secret,
+      userName:     userName,
+      key:          new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(SSH_KEY)
+    ]
+
+    //def jenkins = Jenkins.getInstance()
+    def domain = Domain.global()
+    def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+
+    // Define private key
+    def privateKey = new BasicSSHUserPrivateKey(
+      CredentialsScope.GLOBAL,
+      jenkinsMasterKeyParameters.id,
+      jenkinsMasterKeyParameters.userName,
+      jenkinsMasterKeyParameters.key,
+      jenkinsMasterKeyParameters.secret,
+      jenkinsMasterKeyParameters.description
+    )
+    return store.addCredentials(domain, privateKey)
+  }
 
   /**
    * <p>
