@@ -649,7 +649,6 @@ if(maven3Install == null) {
   public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, String sshPort) {
 
     SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
-    Known hosts file Verification Strategy
     DumbSlave dumb = new DumbSlave(agentName,
             agentDescription,
             agentHome,
