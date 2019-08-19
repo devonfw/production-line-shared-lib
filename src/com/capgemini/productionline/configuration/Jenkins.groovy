@@ -617,6 +617,49 @@ if(maven3Install == null) {
     value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
     return value != null;
   }
+  
+  /**
+   * <p>
+   *    The method adds a SSH credential to the Jenkins credential store
+   * @param agentName
+   *    Jenkins agent name
+   * @param agentIP
+   *    External Jenkins agent IP
+   * @param credentialID
+   *    ID referencing the credential
+   * @param agentDescription
+   *    Jenkins agent description
+   * @param agentHome
+   *    Jenkins agent home
+   * @param agentExecutors
+   *    Jenkins agent executors number
+   * @param agentLabels
+   *    Jenkins agent labels
+   * @param sshPort
+   *    Jenkins agent SSH port
+   */
+
+  public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, String sshPort) {
+
+    String agentName = agentName
+    String agentIP = agentIP
+    String agentDescription = agentDescription
+    String agentHome = agentHome
+    String agentExecutors = agentExecutors
+    String agentLabels = agentLabels
+    SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
+    Known hosts file Verification Strategy
+    DumbSlave dumb = new DumbSlave(agentName,
+            agentDescription,
+            agentHome,
+            agentExecutors,
+            Mode.EXCLUSIVE,
+            agentLabels,
+            new SSHLauncher(agentIP, sshPort, credentialID, "", "", "", "", 60, 3, 15, hostKeyVerificationStrategy),
+            RetentionStrategy.INSTANCE)
+    Jenkins.instance.addNode(dumb)
+   return true;
+  }
 
   /**
    * Method for restarting jenkins
