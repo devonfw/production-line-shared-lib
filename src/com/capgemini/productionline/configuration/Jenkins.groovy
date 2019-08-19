@@ -457,6 +457,49 @@ if(maven3Install == null) {
       return true;
     }
   }
+  
+    /**
+    * <p>
+    *  This method add a new configuration for the Allure Plugin...
+    * @param @required commands
+    *    Commands should be used to configure the plugin
+    * @param @required commandLineInstallerName
+    *    Name that should be used to identify the new configuration
+    * @param @optional home
+    *    Home
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+  public boolean addAnsibleInstalator(String commands, String commandLineInstallerName, String home="") {
+
+    def inst = Jenkins.getInstance()
+
+    def desc = inst.getDescriptor("org.jenkinsci.plugins.ansible.AnsibleInstallation")
+
+    List installers = new ArrayList();
+    List<ToolProperty> properties = new ArrayList<ToolProperty>()
+        
+    def installations = [];
+    // Iteration over already exiting installation, they will be added to the installation list
+    for (i in desc.getInstallations()) {
+    	installations.push(i)
+    }
+
+    try {
+    installers.add(new CommandInstaller("", commands, home))  
+    properties.add(new InstallSourceProperty(installers))
+    def installation = new AnsibleInstallation(commandLineInstallerName, "", properties)
+
+    installations.push(installation)
+    desc.setInstallations(installations.toArray(new org.jenkinsci.plugins.ansible.AnsibleInstallation[0]))
+
+    desc.save()
+    } catch(Exception ex) {
+         println("Installation error  ");
+         return false;
+    }
+    return true
+  }
 
   /**
    * <p>
