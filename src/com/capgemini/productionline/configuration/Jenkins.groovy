@@ -49,6 +49,13 @@ import org.jenkinsci.plugins.configfiles.maven.*
 import org.jenkinsci.plugins.configfiles.maven.security.*
 import org.jenkinsci.plugins.ansible.AnsibleInstallation
 import hudson.tools.CommandInstaller
+
+// The below packages are used by the method setting SSH Jenkins Agent
+
+import hudson.model.Node.Mode
+import hudson.slaves.*
+import hudson.plugins.sshslaves.SSHLauncher
+import hudson.slaves.EnvironmentVariablesNodeProperty.Entry
 import hudson.plugins.sshslaves.verifiers.*
 
 
@@ -641,12 +648,6 @@ if(maven3Install == null) {
 
   public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, String sshPort) {
 
-    String agentName = agentName
-    String agentIP = agentIP
-    String agentDescription = agentDescription
-    String agentHome = agentHome
-    String agentExecutors = agentExecutors
-    String agentLabels = agentLabels
     SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
     Known hosts file Verification Strategy
     DumbSlave dumb = new DumbSlave(agentName,
