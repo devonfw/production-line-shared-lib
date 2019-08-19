@@ -470,7 +470,7 @@ if(maven3Install == null) {
   
     /**
     * <p>
-    *  This method add a new configuration for the Allure Plugin...
+    *  This method add a new configuration for the Ansible Plugin...
     * @param @required commands
     *    Commands should be used to configure the plugin
     * @param @required commandLineInstallerName
