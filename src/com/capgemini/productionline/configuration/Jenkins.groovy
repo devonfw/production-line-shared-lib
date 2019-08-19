@@ -646,7 +646,7 @@ if(maven3Install == null) {
    *    Jenkins agent SSH port
    */
 
-  public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, String sshPort) {
+  public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, int sshPort) {
 
     SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
     DumbSlave dumb = new DumbSlave(agentName,
