@@ -471,7 +471,7 @@ if(maven3Install == null) {
   /**
     * <p>
     *  This method add a new configuration for the Ansible Plugin.
-    *  Example usage: addAnsibleInstalator("if [ ! `which ansible` ]\nthen\nsudo apt-get update\nsudo apt-get install
+    *  Example usage: addAnsibleInstallator("if [ ! `which ansible` ]\nthen\nsudo apt-get update\nsudo apt-get install
     *  ansible -y\nelse echo 'Ansible is already installed'\nfi", "ITaaS Ansible", "/usr/bin/")
     * @param @required commands
     *    Bash commands or script which should be used to configure the plugin
@@ -482,7 +482,7 @@ if(maven3Install == null) {
     * @return
     *    Boolean value which reflects wether the installation was successfull or not
   */
-  public boolean addAnsibleInstalator(String commands, String commandLineInstallerName, String home="") {
+  public boolean addAnsibleInstallator(String commands, String commandLineInstallerName, String home="") {
 
     def inst = Jenkins.getInstance()
 
@@ -507,7 +507,7 @@ if(maven3Install == null) {
 
       desc.save()
     } catch(Exception ex) {
-         println("Error during ansible installtion.");
+         println("Error during ansible installtion. Exception: ${ex}");
          return false;
     }
     return true
@@ -611,7 +611,7 @@ if(maven3Install == null) {
     try {
       store.addCredentials(domain, privateKey)
     } catch(Exception ex) {
-         println("Error during SSH credential adding.");
+         println("Error during SSH credential adding. Exception: ${ex}");
          return false;
     }
     return true
@@ -681,7 +681,7 @@ if(maven3Install == null) {
     try {
       Jenkins.instance.addNode(dumb)
     } catch(Exception ex) {
-         println("Error during Jenkins node creation.");
+         println("Error during Jenkins node creation. Exception: ${ex}");
          return false;
     }
     return true
