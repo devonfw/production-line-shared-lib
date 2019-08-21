@@ -47,6 +47,16 @@ import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 
 import org.jenkinsci.plugins.configfiles.maven.*
 import org.jenkinsci.plugins.configfiles.maven.security.*
+import org.jenkinsci.plugins.ansible.AnsibleInstallation
+import hudson.tools.CommandInstaller
+
+// The below packages are used by the method setting SSH Jenkins Agent
+
+import hudson.model.Node.Mode
+import hudson.slaves.*
+import hudson.plugins.sshslaves.SSHLauncher
+import hudson.slaves.EnvironmentVariablesNodeProperty.Entry
+import hudson.plugins.sshslaves.verifiers.*
 
 
 /**
@@ -457,6 +467,51 @@ if(maven3Install == null) {
       return true;
     }
   }
+  
+  /**
+    * <p>
+    *  This method add a new configuration for the Ansible Plugin.
+    *  Example usage: addAnsibleInstallator("if [ ! `which ansible` ]\nthen\nsudo apt-get update\nsudo apt-get install
+    *  ansible -y\nelse echo 'Ansible is already installed'\nfi", "ITaaS Ansible", "/usr/bin/")
+    * @param @required commands
+    *    Bash commands or script which should be used to configure the plugin
+    * @param @required commandLineInstallerName
+    *    Name that should be used to identify the new configuration
+    * @param @optional home
+    *    Tool home path
+    * @return
+    *    Boolean value which reflects wether the installation was successfull or not
+  */
+  public boolean addAnsibleInstallator(String commands, String commandLineInstallerName, String home="") {
+
+    def inst = Jenkins.getInstance()
+
+    def desc = inst.getDescriptor("org.jenkinsci.plugins.ansible.AnsibleInstallation")
+
+    List installers = new ArrayList();
+    List<ToolProperty> properties = new ArrayList<ToolProperty>()
+        
+    def installations = [];
+    // Iteration over already exiting installation, they will be added to the installation list
+    for (i in desc.getInstallations()) {
+    	installations.push(i)
+    }
+    println("All existing ansible installators have been loaded.");
+    try {
+      installers.add(new CommandInstaller("", commands, home))  
+      properties.add(new InstallSourceProperty(installers))
+      def installation = new AnsibleInstallation(commandLineInstallerName, "", properties)
+
+      installations.push(installation)
+      desc.setInstallations(installations.toArray(new org.jenkinsci.plugins.ansible.AnsibleInstallation[0]))
+
+      desc.save()
+    } catch(Exception ex) {
+         println("Error during ansible installtion. Exception: ${ex}");
+         return false;
+    }
+    return true
+  }
 
   /**
    * <p>
@@ -513,7 +568,54 @@ if(maven3Install == null) {
       return false;
     }
   }
+  
+  /**
+    * <p>
+    *   The method adds a SSH credential to the Jenkins credential store
+    *   Example usage: addJenkinsSshCredentials('Jenkins Node SSH Key', 'IDCredential', '', 'ubuntu', sh(returnStdout: true, script: 'cat ssh_key'))
+    * @param userName
+    *    Username used to connect through the SSH
+    * @param secret
+    *    Secret used inside SSH connection
+    * @param credentialID
+    *    ID referencing the SSH credential
+    * @param description
+    *    Credential description
+    * @param SSH_KEY
+    *    Provided SSH key
+  */
+  public boolean addJenkinsSshCredentials(String description, String credentialID, String secret, String userName, String SSH_KEY) {
+    approveSignature("staticMethod com.cloudbees.plugins.credentials.domains.Domain")
 
+    def jenkinsMasterKeyParameters = [
+      description:  description,
+      id:           credentialID,
+      secret:       secret,
+      userName:     userName,
+      key:          new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(SSH_KEY)
+    ]
+
+    //def jenkins = Jenkins.getInstance()
+    def domain = Domain.global()
+    def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+
+    // Define private key
+    def privateKey = new BasicSSHUserPrivateKey(
+      CredentialsScope.GLOBAL,
+      jenkinsMasterKeyParameters.id,
+      jenkinsMasterKeyParameters.userName,
+      jenkinsMasterKeyParameters.key,
+      jenkinsMasterKeyParameters.secret,
+      jenkinsMasterKeyParameters.description
+    )
+    try {
+      store.addCredentials(domain, privateKey)
+    } catch(Exception ex) {
+         println("Error during SSH credential adding. Exception: ${ex}");
+         return false;
+    }
+    return true
+  }
 
   /**
    * <p>
@@ -529,6 +631,60 @@ if(maven3Install == null) {
 
     value = store.getCredentials(domain).find {credential -> credential.getId() == credentialsID}
     return value != null;
+  }
+  
+  /**
+    * <p>
+    *    The method adds a SSH credential to the Jenkins credential store
+    * @param agentName
+    *    Jenkins agent name
+    * @param agentIP
+    *    External Jenkins agent IP
+    * @param credentialID
+    *    ID referencing the credential
+    * @param agentDescription
+    *    Jenkins agent description
+    * @param agentHome
+    *    Jenkins agent home
+    * @param agentExecutors
+    *    Jenkins agent executors number
+    * @param agentLabels
+    *    Jenkins agent labels
+    * @param sshPort
+    *    Jenkins agent SSH port
+    * @param jvmOptions
+    *    Options passed to the java vm.
+    * @param javaPath
+    *    Path to the host jdk installation. If null the jdk will be auto detected.
+    * @param prefixStartSlaveCmd
+    *    This will prefix the start agent command. For instance if you want to execute the command with a different shell.
+    * @param suffixStartSlaveCmd
+    *    This will suffix the start agent command.
+    * @param launchTimeoutSeconds
+    *    Launch timeout in seconds
+    * @param maxNumRetries
+    *    The number of times to retry connection if the SSH connection is refused during initial connect
+    * @param retryWaitTime
+    *    The number of seconds to wait between retries
+  */
+  public boolean addJenkinsNode(String credentialID, String agentName, String agentIP, String agentDescription, String agentHome, String agentExecutors, String agentLabels, int sshPort,  String jvmOptions, String javaPath, String prefixStartSlaveCmd, String suffixStartSlaveCmd, Integer launchTimeoutSeconds, Integer maxNumRetries, Integer retryWaitTime) {
+
+    SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
+    DumbSlave dumb = new DumbSlave(agentName,
+            agentDescription,
+            agentHome,
+            agentExecutors,
+            Mode.EXCLUSIVE,
+            agentLabels,
+            new SSHLauncher(agentIP, sshPort, credentialID, jvmOptions, javaPath, prefixStartSlaveCmd, suffixStartSlaveCmd, launchTimeoutSeconds, maxNumRetries, retryWaitTime, hostKeyVerificationStrategy),
+            RetentionStrategy.INSTANCE)
+    try {
+      Jenkins.instance.addNode(dumb)
+    } catch(Exception ex) {
+         println("Error during Jenkins node creation. Exception: ${ex}");
+         return false;
+    }
+    return true
   }
 
   /**
