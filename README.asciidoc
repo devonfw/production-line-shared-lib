@@ -35,7 +35,7 @@ To make all of the 'SharedLib for Production Line' methods available for Jobs, t
 . Go to 'Manage Jenkins' image:ManageJenkinsScreenshot.png[Manage Jenkins Screenshot,float="left"]
 . Select 'Configure System' image:ConfigureSystemJenkinsScreenshot.png[Configure System Screenshot,float="right"]
 . Search for 'Global Pipeline Libraries'
-. Add the library image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot,float="right"]
+. Add the library but as "Default version" use "release/1.1": " image:AddSharedLibJenkinsScreenshot.png[Add a Shared Lib Screenshot,float="right"]
 
 === Install plugins used by library
 * Allure Jenkins Plugin
