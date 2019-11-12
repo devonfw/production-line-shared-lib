@@ -1,51 +1,41 @@
 package com.capgemini.productionline.configuration
 
 import com.cloudbees.jenkins.plugins.customtools.CustomTool
+import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.Credentials
 import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider
 import com.cloudbees.plugins.credentials.domains.Domain
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
-import com.openshift.jenkins.plugins.ClusterConfig
-import com.openshift.jenkins.plugins.OpenShiftClientTools
-import com.openshift.jenkins.plugins.OpenShift
-import com.openshift.jenkins.plugins.OpenShiftTokenCredentials
+import com.dabsquared.gitlabjenkins.connection.GitLabApiToken
+import com.dabsquared.gitlabjenkins.connection.GitLabApiTokenImpl
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+
 import hudson.EnvVars
+import hudson.model.Node.Mode
+import hudson.model.JDK
 import hudson.plugins.sonar.SonarGlobalConfiguration
 import hudson.plugins.sonar.SonarInstallation
 import hudson.plugins.sonar.model.TriggersConfig
+import hudson.plugins.sshslaves.SSHLauncher
+import hudson.plugins.sshslaves.verifiers.*
+import hudson.slaves.DumbSlave
 import hudson.slaves.EnvironmentVariablesNodeProperty
 import hudson.tasks.Maven
 import hudson.tools.CommandInstaller
 import hudson.tools.InstallSourceProperty
 import hudson.tools.ToolProperty
-import hudson.util.Secret
+import hudson.tools.ZipExtractionInstaller
 import jenkins.model.Jenkins
 import jenkins.plugins.nodejs.tools.NodeJSInstallation
 import jenkins.plugins.nodejs.tools.NodeJSInstaller
+
+import org.jenkinsci.plugins.ansible.AnsibleInstallation
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping
-import org.jenkinsci.plugins.docker.commons.tools.DockerTool
-import org.jenkinsci.plugins.docker.commons.tools.DockerToolInstaller
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
+
 import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstallation
 import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstaller
-import com.dabsquared.gitlabjenkins.connection.GitLabApiTokenImpl
-import com.dabsquared.gitlabjenkins.connection.GitLabApiToken
-import org.jenkinsci.plugins.plaincredentials.*
-import org.jenkinsci.plugins.plaincredentials.impl.*
-import com.cloudbees.plugins.credentials.common.*
-import hudson.tasks.Maven.MavenInstaller
-import hudson.tasks.Maven.MavenInstallation
-import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
-import org.jenkinsci.plugins.configfiles.maven.*
-import org.jenkinsci.plugins.configfiles.maven.security.*
-import org.jenkinsci.plugins.ansible.AnsibleInstallation
-import hudson.model.Node.Mode
-import hudson.slaves.*
-import hudson.plugins.sshslaves.SSHLauncher
-import hudson.slaves.EnvironmentVariablesNodeProperty.Entry
-import hudson.plugins.sshslaves.verifiers.*
 
 
 /**
@@ -185,84 +175,6 @@ class JenkinsConfiguration implements Serializable {
 
             return true
         }
-    }
-
-    public Boolean installDocker(String toolName, String label, String version, String toolHome) {
-        def inst = Jenkins.get()
-
-        def desc = inst.getDescriptor("org.jenkinsci.plugins.docker.commons.tools.DockerTool")
-
-        def installations = []
-        def install = true
-
-        // Iteration over already exiting installation, they will be added to the installation list
-        for (i in desc.getInstallations()) {
-            installations.push(i)
-            step.println i
-
-            if (i.name == toolName) {
-                install = false
-            }
-        }
-
-        if (install) {
-            try {
-                def installer = new DockerToolInstaller(label, version)
-                def installerProps = new InstallSourceProperty([installer])
-                def installation = new DockerTool(toolName, toolHome, [installerProps])
-                installations.push(installation)
-
-                desc.setInstallations(installations.toArray(new DockerTool[0]))
-
-                desc.save()
-            } catch (Exception ex) {
-                context.println ex
-                context.println("Installation error  ")
-                return false
-            }
-        }
-
-        return true
-    }
-
-    public Boolean installOpenshift(String toolName, String commandLabel, String batchString, String homeDir) {
-
-        def inst = Jenkins.get()
-
-        def desc = inst.getDescriptor("com.openshift.jenkins.plugins.OpenShiftClientTools")
-
-        def installations = []
-        def install = true
-
-        // Iteration over already exiting installation, they will be added to the installation list
-        for (i in desc.getInstallations()) {
-            installations.push(i)
-
-            if (i.name == toolName) {
-                install = false
-            }
-        }
-
-        if (install) {
-            try {
-
-                def installer = new CommandInstaller(commandLabel, batchString, homeDir)
-
-                def installerProps = new InstallSourceProperty([installer])
-                def installation = new OpenShiftClientTools(toolName, "", [installerProps])
-                installations.push(installation)
-
-                desc.setInstallations(installations.toArray(new OpenShiftClientTools[0]))
-
-                desc.save()
-            } catch (Exception ex) {
-                context.println ex
-                context.println("Installation error  ")
-                return false
-            }
-        }
-
-        return true
     }
 
     /**
@@ -427,6 +339,56 @@ class JenkinsConfiguration implements Serializable {
                 installations.push(installation)
 
                 desc.setInstallations(installations.toArray(new NodeJSInstallation[0]))
+
+                desc.save()
+            } catch (Exception ex) {
+                context.println("Installation error  " + ex.getMessage())
+                return false
+            }
+        }
+
+        return true
+    }
+
+    /**
+     * <p>
+     *  This method add a new JDK version using the JDK plugin. .
+     * @param @required installName
+     *    Name that should be diplay to identity the installation
+     * @param @required downloadUrl
+     *    JDK download url.
+     * @param @required jdkFolder
+     *    Folder where jdk is extracted.
+     *
+     * @return
+     *    Boolean value which reflects wether the installation was successfull or not
+     */
+    public boolean addJdkVersion(String installName, String downloadUrl, String jdkFolder) {
+
+        def inst = Jenkins.get()
+
+        def desc = inst.getDescriptor("hudson.model.JDK")
+
+        def installations = []
+        def install = true
+
+        // Iteration over already exiting installation, they will be added to the installation list
+        for (i in desc.getInstallations()) {
+            installations.push(i)
+
+            if (i.name == installName) {
+                install = false
+            }
+        }
+
+        if (install) {
+            try {
+                def installer = new ZipExtractionInstaller("", downloadUrl, jdkFolder)
+                def installerProps = new InstallSourceProperty([installer])
+                def installation = new JDK(installName, "", [installerProps])
+                installations.push(installation)
+
+                desc.setInstallations(installations.toArray(new JDK[0]))
 
                 desc.save()
             } catch (Exception ex) {
@@ -657,31 +619,31 @@ class JenkinsConfiguration implements Serializable {
     */
     public boolean addAnsibleInstallator(String commands, String commandLineInstallerName, String home="") {
 
-        def inst = Jenkins.getInstance()
+        def inst = Jenkins.get()
 
         def desc = inst.getDescriptor("org.jenkinsci.plugins.ansible.AnsibleInstallation")
 
-        List installers = new ArrayList();
+        List installers = new ArrayList()
         List<ToolProperty> properties = new ArrayList<ToolProperty>()
             
-        def installations = [];
+        def installations = []
         // Iteration over already exiting installation, they will be added to the installation list
         for (i in desc.getInstallations()) {
             installations.push(i)
         }
-        println("All existing ansible installators have been loaded.");
+        println("All existing ansible installators have been loaded.")
         try {
-        installers.add(new CommandInstaller("", commands, home))  
-        properties.add(new InstallSourceProperty(installers))
-        def installation = new AnsibleInstallation(commandLineInstallerName, "", properties)
+            installers.add(new CommandInstaller("", commands, home))
+            properties.add(new InstallSourceProperty(installers))
+            def installation = new AnsibleInstallation(commandLineInstallerName, "", properties)
 
-        installations.push(installation)
-        desc.setInstallations(installations.toArray(new org.jenkinsci.plugins.ansible.AnsibleInstallation[0]))
+            installations.push(installation)
+            desc.setInstallations(installations.toArray(new AnsibleInstallation[0]))
 
-        desc.save()
+            desc.save()
         } catch(Exception ex) {
-            println("Error during ansible installtion. Exception: ${ex}");
-            return false;
+            println("Error during ansible installtion. Exception: ${ex}")
+            return false
         }
         return true
     } 
@@ -873,75 +835,26 @@ class JenkinsConfiguration implements Serializable {
      * @param value the value of the envionment variable
      */
     public void addJenkinsGlobalEnvironmentVariable(String key, String value) {
-        Jenkins instance = Jenkins.get()
+        try {
+            Jenkins instance = Jenkins.get()
 
-        def globalNodeProperties = instance.getGlobalNodeProperties()
-        List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class)
+            def globalNodeProperties = instance.getGlobalNodeProperties()
+            List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class)
 
-        EnvironmentVariablesNodeProperty newEnvVarsNodeProperty
-        EnvVars envVars = null
+            EnvironmentVariablesNodeProperty newEnvVarsNodeProperty
+            EnvVars envVars
 
-        if (envVarsNodePropertyList == null || envVarsNodePropertyList.size() == 0) {
-            newEnvVarsNodeProperty = new EnvironmentVariablesNodeProperty()
-            globalNodeProperties.add(newEnvVarsNodeProperty)
-            envVars = newEnvVarsNodeProperty.getEnvVars()
-        } else {
-            envV ars = envVarsNodePropertyList.get(0).getEnvVars()
-        }
-        envVars.put(key, value)
-        instance.save()
-    }
-
-    /**
-     * Method for creating a global credential object in the jenkins context.
-     * <p>
-     * @param id
-     *    uniqe id for references in Jenkins
-     * @param desc
-     *    description for the credentials object.
-     * @param username
-     *    username of the credentials object.
-     * @param password
-     *    password of the credentials object.
-     */
-    public OpenShiftTokenCredentials createCredatialObjectUsernamePassword(String id, String desc, String token) {
-
-        OpenShiftTokenCredentials found = SystemCredentialsProvider.getInstance().getCredentials().find {
-            if (it instanceof OpenShiftTokenCredentials) {
-                it.getId() == id
+            if (envVarsNodePropertyList == null || envVarsNodePropertyList.size() == 0) {
+                newEnvVarsNodeProperty = new EnvironmentVariablesNodeProperty()
+                globalNodeProperties.add(newEnvVarsNodeProperty)
+                envVars = newEnvVarsNodeProperty.getEnvVars()
+            } else {
+                envVars = envVarsNodePropertyList.get(0).getEnvVars()
             }
-        } as OpenShiftTokenCredentials
-
-        if(!found) {
-            // create credential object
-            def credObj = new OpenShiftTokenCredentials(CredentialsScope.GLOBAL, id, desc, Secret.fromString(token))
-            context.println "Add credentials " + id + " in global store"
-            // store global credential object
-            SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), credObj)
-            return credObj
-        }
-
-        return found
-    }
-
-    public void addOpenshiftGlobalConfiguration(String clusterName, String clusterUrl, String clusterCredential, String clusterProject) {
-        OpenShift.DescriptorImpl openshiftDSL = (OpenShift.DescriptorImpl)Jenkins.get().getDescriptor("com.openshift.jenkins.plugins.OpenShift")
-
-        def found = openshiftDSL.getClusterConfigs().find {
-            it.getName() == clusterName
-        }
-
-        if (!found) {
-            ClusterConfig cluster1 = new ClusterConfig(clusterName)
-            cluster1.setServerUrl(clusterUrl)
-            cluster1.setCredentialsId(clusterCredential)
-            cluster1.setDefaultProject(clusterProject)
-            cluster1.setSkipTlsVerify(true)
-
-            openshiftDSL.addClusterConfig(cluster1)
-            openshiftDSL.save()
-        } else {
-            context.println "Openshift configuration with name ${clusterName} already existes"
+            envVars.put(key, value)
+            instance.save()
+        } catch(e) {
+            context.println e
         }
     }
 
