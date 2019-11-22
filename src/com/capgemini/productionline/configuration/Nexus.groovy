@@ -14,12 +14,14 @@ class Nexus implements Serializable {
     String adminUser = ""
     String adminPasswd = ""
     String nexusHostUrl = ""
+    def context
 
 
-    Nexus(adminUser, adminPasswd, nexusHostUrl) {
+    Nexus(adminUser, adminPasswd, nexusHostUrl, context) {
         this.adminUser = adminUser
         this.adminPasswd = adminPasswd
         this.nexusHostUrl = nexusHostUrl
+        this.context = context
     }
 
     /**
@@ -67,7 +69,7 @@ class Nexus implements Serializable {
      * @param scriptName
      *    Script name that should be used to add the script to the repository manager, as the nexus Script API will be used
      */
-    public Object runScript(String scriptName) {
+    public Object runScript(String scriptName, String content) {
 
         def result_json = new JsonSlurper().parseText('{}')
         def result_staus = true
@@ -76,7 +78,12 @@ class Nexus implements Serializable {
 
         def sout = new StringBuilder(), serr = new StringBuilder()
         // The Script was successfully added. and can be executed.
-        def proc = ["curl", "-u", "${adminUser}:${adminPasswd}", "-X", "POST", "-v", "-H", "Content-Type: text/plain", "${nexusHostUrl}/service/rest/v1/script/${scriptName}/run"].execute()
+        def proc = ["curl", "-u", "${this.adminUser}:${this.adminPasswd}", "-X", "POST", "-v", "-H", "Content-Type: text/plain"]
+        if (content) {
+            proc << "-d" << ("${content}" as String)
+        }
+        proc << ("${this.nexusHostUrl}/service/rest/v1/script/${scriptName}/run" as String)
+        proc.execute()
         proc.waitForOrKill(1000)
         proc.consumeProcessOutput(sout, serr)
         // if the repository creation fails, the result may contain the failure cause
@@ -94,7 +101,7 @@ class Nexus implements Serializable {
         def addScript = addScript(repoName, scriptName)
         if (!addScript.status) {
             return addScript
-        } else return runScript(scriptName)
+        } else return runScript(scriptName, null)
     }
 
 }

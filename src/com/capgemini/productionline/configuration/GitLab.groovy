@@ -1,6 +1,12 @@
 package com.capgemini.productionline.configuration
 
+import com.cloudbees.plugins.credentials.CredentialsScope
+import com.cloudbees.plugins.credentials.SystemCredentialsProvider
+import com.cloudbees.plugins.credentials.domains.Domain
+import com.dabsquared.gitlabjenkins.connection.GitLabApiToken
+import com.dabsquared.gitlabjenkins.connection.GitLabApiTokenImpl
 import groovy.json.JsonOutput
+import hudson.util.Secret
 
 /**
  * Contains the configuration methods of the gitlab component
@@ -21,6 +27,33 @@ class GitLab implements Serializable {
         this.context = context
         this.accesstoken = token
         this.gitlabHostUrl = gitlabHostUrl
+    }
+
+    public static void createGitlabTokenCredentials(String id, String desc, String credential) {
+        try {
+            GitLabApiToken credObj = new GitLabApiTokenImpl(CredentialsScope.GLOBAL, id, desc, Secret.fromString(credential))
+            // store global credential object
+            SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), credObj)
+        } catch (e) {
+            println('Error creating credential: ' + e)
+        }
+    }
+
+    public static String gitlabApiToken(String id) {
+
+        GitLabApiToken found = SystemCredentialsProvider.getInstance().getCredentials().find {
+            if (it instanceof GitLabApiToken || it instanceof GitLabApiTokenImpl) {
+                it.getId() == id
+            }
+        } as GitLabApiToken
+
+        if (found) {
+            return found.getApiToken().getPlainText()
+        } else {
+            println "gitLabApitToken with ID ${id} not found"
+        }
+
+        return ''
     }
 
     public String getGroupId(String groupname) {
@@ -45,13 +78,13 @@ class GitLab implements Serializable {
     public createWebhook(String groupname, String projectname, String webhookUrl, String token = "") {
         def projectId = getProjectId(groupname, projectname)
         def body = [
-            id: projectId,
-            url: webhookUrl,
-            push_events: true,
-            enable_ssl_verification: false,
+                id                     : projectId,
+                url                    : webhookUrl,
+                push_events            : true,
+                enable_ssl_verification: false,
         ]
 
-        if (token != ""){
+        if (token != "") {
             body["token"] = token
         }
 

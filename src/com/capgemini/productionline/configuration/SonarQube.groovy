@@ -23,6 +23,11 @@ class SonarQube implements Serializable {
         this.sonarQubeBaseUrl = ProductionLineGlobals.SONARQUBE_BASE_URL
     }
 
+    SonarQube(context)  {
+        this.context = context
+        this.sonarQubeBaseUrl = ProductionLineGlobals.SONARQUBE_BASE_URL
+    }
+
     /**
     * Initiate a new 'SonarQube' instance by providing a username and the SonarQube base URL.
     * <p>
@@ -55,6 +60,21 @@ class SonarQube implements Serializable {
 
         // Return a token 
         return parsedJsonResponse.token
+    }
+
+    def getSonarVersion(String credentialsId) {
+        def response = this.context.httpRequest authentication: credentialsId, httpMode: 'GET', url: "${this.sonarQubeBaseUrl}/api/server/version"
+        return response.getContent()
+    }
+
+    def restartSonar(String credentialsId) {
+        def response = this.context.httpRequest authentication: credentialsId, httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/system/restart"
+        return response.getContent()
+    }
+
+    def addWebhook(String credentialsId, String webhookName, String webhookUrl){
+        def response = this.context.httpRequest requestBody: """{"name": "${webhookName}", "url": "${webhookUrl}"}""",acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', authentication: credentialsId, httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/webhooks/create"
+        return response.getContent()
     }
 
     def importQualityProfile() {
