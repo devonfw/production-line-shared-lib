@@ -69,10 +69,10 @@ class SonarQube implements Serializable {
 
     def addWebhook(String webhookName, String webhookUrl) {
         def response
-        if (this.getSonarVersion() > '7.1') {
+        if (getSonarVersion() > '7.1') {
             response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/webhooks/create?name=${webhookName}&url=${webhookUrl}"
         } else {
-            response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/settings/set?key=sonar.webhooks.global&values=jenkins&values=http%3A%2F%2Fjenkins-core%3A8080%2Fjenkins%2Fsonarqube-webhook%2F"
+            response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/settings/set?key=sonar.webhooks.global&values=${webhookName}&values=${webhookUrl}"
         }
         return response.getContent()
     }
