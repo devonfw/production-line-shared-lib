@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-package com.capgemini.productionline.configuration;
+package com.capgemini.productionline.configuration
 
 class SonarQube implements Serializable {
     String username
@@ -72,7 +72,11 @@ class SonarQube implements Serializable {
         if (getSonarVersion() > '7.1') {
             response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/webhooks/create?name=${webhookName}&url=${webhookUrl}"
         } else {
-            response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: """${this.sonarQubeBaseUrl}/api/settings/set?key=sonar.webhooks.global&fieldValues=%7B%22name%22%3A%22${webhookName}%22%2C%22url%22%3A%22${webhookUrl}%22%7D"""
+            response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: """${
+                this.sonarQubeBaseUrl
+            }/api/settings/set?key=sonar.webhooks.global&fieldValues=%7B%22name%22%3A%22${
+                webhookName
+            }%22%2C%22url%22%3A%22${webhookUrl}%22%7D"""
         }
         return response.getContent()
     }
@@ -81,7 +85,13 @@ class SonarQube implements Serializable {
         // TODO
     }
 
-    def installPlugin() {
-        // TODO
+    /**
+     *  Install a plugin in the SonarQube using the marketplace
+     * @param pluginName The plugin name
+     * @return the api response content
+     */
+    def installPlugin(String pluginName) {
+        def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/plugins/install?key=${pluginName}"
+        return response.getContent()
     }
 }

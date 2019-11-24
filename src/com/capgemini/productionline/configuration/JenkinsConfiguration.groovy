@@ -28,6 +28,7 @@ import hudson.util.Secret
 import jenkins.model.Jenkins
 import jenkins.plugins.nodejs.tools.NodeJSInstallation
 import jenkins.plugins.nodejs.tools.NodeJSInstaller
+import org.jenkinsci.plugins.ansible.AnsibleInstallation
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
@@ -408,6 +409,51 @@ class JenkinsConfiguration implements Serializable {
             }
         }
 
+        return true
+    }
+
+    /**
+     * <p>
+     *  This method add a new configuration for the Ansible Plugin.
+     *  Example usage: addAnsibleInstallator("if [ ! `which ansible` ]\nthen\nsudo apt-get update\nsudo apt-get install
+     *  ansible -y\nelse echo 'Ansible is already installed'\nfi", "ITaaS Ansible", "/usr/bin/")
+     * @param @required commands
+     *    Bash commands or script which should be used to configure the plugin
+     * @param @required commandLineInstallerName
+     *    Name that should be used to identify the new configuration
+     * @param @optional home
+     *    Tool home path
+     * @return
+     *    Boolean value which reflects wether the installation was successfull or not
+     */
+    public static boolean addAnsibleInstallator(String commands, String commandLineInstallerName, String home = "") {
+
+        def inst = Jenkins.get()
+
+        def desc = inst.getDescriptor("org.jenkinsci.plugins.ansible.AnsibleInstallation")
+
+        List installers = new ArrayList()
+        List<ToolProperty> properties = new ArrayList<ToolProperty>()
+
+        def installations = []
+        // Iteration over already exiting installation, they will be added to the installation list
+        for (i in desc.getInstallations()) {
+            installations.push(i)
+        }
+        println("All existing ansible installators have been loaded.")
+        try {
+            installers.add(new CommandInstaller("", commands, home))
+            properties.add(new InstallSourceProperty(installers))
+            def installation = new AnsibleInstallation(commandLineInstallerName, "", properties)
+
+            installations.push(installation)
+            desc.setInstallations(installations.toArray(new AnsibleInstallation[0]))
+
+            desc.save()
+        } catch (Exception ex) {
+            println("Error during ansible installtion. Exception: ${ex}")
+            return false
+        }
         return true
     }
 
