@@ -779,7 +779,7 @@ class JenkinsConfiguration implements Serializable {
 
         def store = Jenkins.get().getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
 
-        value = store.getCredentials(domain).find { credential -> credential.getId() == credentialsID }
+        def value = store.getCredentials(domain).find { credential -> credential.getId() == credentialsID }
         return value != null
     }
 
