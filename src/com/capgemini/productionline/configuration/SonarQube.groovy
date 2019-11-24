@@ -68,7 +68,7 @@ class SonarQube implements Serializable {
     }
 
     def addWebhook(String webhookName, String webhookUrl){
-        def response = this.context.httpRequest consoleLogResponseBody: true, requestBody: """{"name": "${webhookName}", "url": "${webhookUrl}"}""",acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/webhooks/create"
+        def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/webhooks/create?name=${webhookName}&url=${webhookUrl}"
         return response.getContent()
     }
 
