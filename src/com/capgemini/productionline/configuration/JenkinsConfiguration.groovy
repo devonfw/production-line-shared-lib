@@ -29,6 +29,8 @@ import jenkins.model.Jenkins
 import jenkins.plugins.nodejs.tools.NodeJSInstallation
 import jenkins.plugins.nodejs.tools.NodeJSInstaller
 import org.jenkinsci.plugins.ansible.AnsibleInstallation
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
@@ -651,14 +653,15 @@ class JenkinsConfiguration implements Serializable {
      *    ID referencing the credential
      */
     public boolean addServerCredentialToMavenConfig(String configID = "MavenSettings", String serverID, String credentialID) {
-        def configStore = Jenkins.get().getExtensionList('org.jenkinsci.plugins.configfiles.GlobalConfigFiles')[0]
+        GlobalConfigFiles configStore = Jenkins.get().getExtensionList(GlobalConfigFiles.class)[0]
 
-        def cfg = configStore.getById("MavenSettings")
+        MavenSettingsConfig cfg = configStore.getById("MavenSettings") as MavenSettingsConfig
 
         if (checkCredentialInStore(credentialID)) {
-            serverCredentialMapping = new ServerCredentialMapping(serverID, credentialID)
+            def serverCredentialMapping = new ServerCredentialMapping(serverID, credentialID)
             cfg.serverCredentialMappings.add(serverCredentialMapping)
-            return configStore.save(cfg)
+            configStore.save(cfg)
+            return true
         } else {
             return false
         }
