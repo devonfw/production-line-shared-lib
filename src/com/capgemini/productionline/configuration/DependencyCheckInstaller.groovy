@@ -2,11 +2,12 @@ package com.capgemini.productionline.configuration
 
 import hudson.tools.InstallSourceProperty
 import org.jenkinsci.plugins.DependencyCheck.tools.DependencyCheckInstallation
+import org.jenkinsci.plugins.DependencyCheck.tools.DependencyCheckInstaller
 
-class DependencyCheckInstaller implements Serializable {
+class DependencyCheckConfiguration implements Serializable {
     def context
 
-    DependencyCheckInstaller(context){
+    DependencyCheckConfiguration(context) {
         this.context = context
     }
 
