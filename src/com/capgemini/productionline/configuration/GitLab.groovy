@@ -29,6 +29,10 @@ class GitLab implements Serializable {
         this.gitlabHostUrl = gitlabHostUrl
     }
 
+    GitLab(context, token) {
+        this(context, token, ProductionLineGlobals.GITLAB_BASE_URL);
+    }
+
     public static void createGitlabTokenCredentials(String id, String desc, String credential) {
         try {
             GitLabApiToken credObj = new GitLabApiTokenImpl(CredentialsScope.GLOBAL, id, desc, Secret.fromString(credential))
@@ -72,6 +76,7 @@ class GitLab implements Serializable {
 
     //In order to create a group in Gitlab the user needs to have the "Can create groups permissions". This needs to be sex explicitely!
     public createGroup(String groupname, String grouppath, String groupdesc, String grouptype) {
+        this.context.println accesstoken
         this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: "${gitlabHostUrl}/api/v4/groups?name=" + groupname + '&path=' + grouppath + '&description=' + URLEncoder.encode(groupdesc, "UTF-8") + '&visibility=' + grouptype
     }
 

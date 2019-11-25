@@ -57,16 +57,30 @@ class SonarQube implements Serializable {
         return parsedJsonResponse.token
     }
 
+    /**
+     *  Get the SonarQube version
+     * @return the version
+     */
     def getSonarVersion() {
         def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'GET', url: "${this.sonarQubeBaseUrl}/api/server/version"
         return response.getContent()
     }
 
+    /**
+     *  Restart the SonarQube server
+     * @return the HTTP response content
+     */
     def restartSonar() {
         def response = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'X-Forwarded-User', value: username], [maskValue: true, name: 'X-Forwarded-Groups', value: 'admins']], httpMode: 'POST', url: "${this.sonarQubeBaseUrl}/api/system/restart"
         return response.getContent()
     }
 
+    /**
+     *  Add a global webhook in SonarQube
+     * @param webhookName the webhook name
+     * @param webhookUrl the webhook url
+     * @return the HTTP response content
+     */
     def addWebhook(String webhookName, String webhookUrl) {
         def response
         if (getSonarVersion() > '7.1') {
