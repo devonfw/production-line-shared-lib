@@ -22,7 +22,7 @@ class DependencyCheckConfiguration implements Serializable {
         // Iteration over already exiting installation, they will be added to the installation list
         for (i in desc.getInstallations()) {
             installations.push(i)
-            step.println i
+            this.context.println i
 
             if (i.name == toolName) {
                 install = false
