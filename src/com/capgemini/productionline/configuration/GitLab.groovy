@@ -1,6 +1,12 @@
 package com.capgemini.productionline.configuration
 
+import com.cloudbees.plugins.credentials.CredentialsScope
+import com.cloudbees.plugins.credentials.SystemCredentialsProvider
+import com.cloudbees.plugins.credentials.domains.Domain
+import com.dabsquared.gitlabjenkins.connection.GitLabApiToken
+import com.dabsquared.gitlabjenkins.connection.GitLabApiTokenImpl
 import groovy.json.JsonOutput
+import hudson.util.Secret
 
 /**
  * Contains the configuration methods of the gitlab component
@@ -23,6 +29,37 @@ class GitLab implements Serializable {
         this.gitlabHostUrl = gitlabHostUrl
     }
 
+    GitLab(context, token) {
+        this(context, token, ProductionLineGlobals.GITLAB_BASE_URL);
+    }
+
+    public static void createGitlabTokenCredentials(String id, String desc, String credential) {
+        try {
+            GitLabApiToken credObj = new GitLabApiTokenImpl(CredentialsScope.GLOBAL, id, desc, Secret.fromString(credential))
+            // store global credential object
+            SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), credObj)
+        } catch (e) {
+            println('Error creating credential: ' + e)
+        }
+    }
+
+    public static String gitlabApiToken(String id) {
+
+        GitLabApiToken found = SystemCredentialsProvider.getInstance().getCredentials().find {
+            if (it instanceof GitLabApiToken || it instanceof GitLabApiTokenImpl) {
+                it.getId() == id
+            }
+        } as GitLabApiToken
+
+        if (found) {
+            return found.getApiToken().getPlainText()
+        } else {
+            println "gitLabApitToken with ID ${id} not found"
+        }
+
+        return ''
+    }
+
     public String getGroupId(String groupname) {
         def searchresult = this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'GET', url: "${gitlabHostUrl}/api/v4/groups?search=" + groupname
         def jsonObject = this.context.readJSON text: searchresult.getContent()
@@ -39,19 +76,20 @@ class GitLab implements Serializable {
 
     //In order to create a group in Gitlab the user needs to have the "Can create groups permissions". This needs to be sex explicitely!
     public createGroup(String groupname, String grouppath, String groupdesc, String grouptype) {
+        this.context.println accesstoken
         this.context.httpRequest consoleLogResponseBody: true, customHeaders: [[maskValue: true, name: 'PRIVATE-TOKEN', value: accesstoken]], httpMode: 'POST', url: "${gitlabHostUrl}/api/v4/groups?name=" + groupname + '&path=' + grouppath + '&description=' + URLEncoder.encode(groupdesc, "UTF-8") + '&visibility=' + grouptype
     }
 
     public createWebhook(String groupname, String projectname, String webhookUrl, String token = "") {
         def projectId = getProjectId(groupname, projectname)
         def body = [
-            id: projectId,
-            url: webhookUrl,
-            push_events: true,
-            enable_ssl_verification: false,
+                id                     : projectId,
+                url                    : webhookUrl,
+                push_events            : true,
+                enable_ssl_verification: false,
         ]
 
-        if (token != ""){
+        if (token != "") {
             body["token"] = token
         }
 

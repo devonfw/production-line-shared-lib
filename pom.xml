@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>sonar</artifactId>
-            <version>2.9</version>
+            <version>2.10</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -83,6 +83,21 @@
             <groupId>com.openshift.jenkins.plugins</groupId>
             <artifactId>openshift-client</artifactId>
             <version>1.0.31</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>ssh-slaves</artifactId>
+            <version>1.31.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>ansible</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>dependency-check-jenkins-plugin</artifactId>
+            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
