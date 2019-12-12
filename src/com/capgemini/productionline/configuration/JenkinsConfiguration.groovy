@@ -10,6 +10,7 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
 import hudson.EnvVars
 import hudson.model.JDK
+import hudson.model.Job
 import hudson.model.Node.Mode
 import hudson.plugins.sonar.SonarGlobalConfiguration
 import hudson.plugins.sonar.SonarInstallation
@@ -875,6 +876,17 @@ class JenkinsConfiguration implements Serializable {
             instance.save()
         } catch (e) {
             context.println e
+        }
+    }
+
+    public getLastStableBuild(String jobName){
+        try{
+            Job job = Jenkins.get().getItemByFullName(jobName) as Job
+
+            return job.getLastStableBuild()
+        } catch (ignore) {
+            this.context.println("The job " + jobName + " do not exists")
+            return null
         }
     }
 }
