@@ -96,11 +96,7 @@ class OpenshiftConfiguration implements Serializable {
     public void addOpenshiftGlobalConfiguration(String clusterName, String clusterUrl, String clusterCredential, String clusterProject) {
         OpenShift.DescriptorImpl openshiftDSL = (OpenShift.DescriptorImpl)Jenkins.get().getDescriptor("com.openshift.jenkins.plugins.OpenShift")
 
-        def found = openshiftDSL.getClusterConfigs().find {
-            it.getName() == clusterName
-        }
-
-        if (!found) {
+        if (!existsOpenshiftGlobalConfiguration(clusterName)) {
             ClusterConfig cluster1 = new ClusterConfig(clusterName)
             cluster1.setServerUrl(clusterUrl)
             cluster1.setCredentialsId(clusterCredential)
@@ -112,5 +108,15 @@ class OpenshiftConfiguration implements Serializable {
         } else {
             context.println "Openshift configuration with name ${clusterName} already existes"
         }
+    }
+
+    public boolean existsOpenshiftGlobalConfiguration(String clusterName) {
+        OpenShift.DescriptorImpl openshiftDSL = (OpenShift.DescriptorImpl)Jenkins.get().getDescriptor("com.openshift.jenkins.plugins.OpenShift")
+
+        def found = openshiftDSL.getClusterConfigs().find {
+            it.getName() == clusterName
+        }
+
+        return found != null
     }
 }
