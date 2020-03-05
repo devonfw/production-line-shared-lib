@@ -879,6 +879,21 @@ class JenkinsConfiguration implements Serializable {
         }
     }
 
+    /**
+     * Check if a job already exists in Jenkins
+     * @param jobName the job name
+     * @return true if the job exists.
+     */
+    public boolean existsJob(String jobName) {
+        return Jenkins.get().getItemByFullName(jobName) != null
+    }
+
+    /**
+     * Returns the last stable build of a job. If the job do not exists, or it do not have a stable build,
+     * it returns null.
+     * @param jobName the job name
+     * @return the last stable build or null.
+     */
     public getLastStableBuild(String jobName){
         try{
             Job job = Jenkins.get().getItemByFullName(jobName) as Job

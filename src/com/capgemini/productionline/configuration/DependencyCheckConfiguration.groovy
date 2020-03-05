@@ -1,6 +1,7 @@
 package com.capgemini.productionline.configuration
 
 import hudson.tools.InstallSourceProperty
+import jenkins.model.Jenkins
 import org.jenkinsci.plugins.DependencyCheck.tools.DependencyCheckInstallation
 import org.jenkinsci.plugins.DependencyCheck.tools.DependencyCheckInstaller
 
