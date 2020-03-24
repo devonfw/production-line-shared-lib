@@ -1,5 +1,6 @@
 package com.capgemini.productionline.configuration
 
+import com.cloudbees.groovy.cps.NonCPS
 import com.cloudbees.jenkins.plugins.customtools.CustomTool
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey
 import com.cloudbees.plugins.credentials.Credentials
@@ -8,10 +9,13 @@ import com.cloudbees.plugins.credentials.SystemCredentialsProvider
 import com.cloudbees.plugins.credentials.domains.Domain
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import com.synopsys.arc.jenkinsci.plugins.customtools.versions.ToolVersionConfig
+import groovy.xml.XmlUtil
 import hudson.EnvVars
 import hudson.model.JDK
 import hudson.model.Job
 import hudson.model.Node.Mode
+import hudson.plugins.git.BranchSpec
+import hudson.plugins.git.GitSCM
 import hudson.plugins.sonar.SonarGlobalConfiguration
 import hudson.plugins.sonar.SonarInstallation
 import hudson.plugins.sonar.model.TriggersConfig
@@ -35,8 +39,12 @@ import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
+import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
+import org.jenkinsci.plugins.workflow.job.WorkflowJob
 import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstallation
 import ru.yandex.qatools.allure.jenkins.tools.AllureCommandlineInstaller
+
+import java.nio.charset.StandardCharsets
 
 /**
  * Contains the configuration methods of the jenkins component
@@ -80,8 +88,9 @@ class JenkinsConfiguration implements Serializable {
             Credentials credObj = new StringCredentialsImpl(CredentialsScope.GLOBAL, id, desc, Secret.fromString(credential))
             context.println "Add credentials " + id + " in global store"
             // store global credential object
-            SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), credObj)
-            return credObj
+            if (SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), credObj)) {
+                return credObj
+            }
         } catch (e) {
             this.context.println('Error creating credential: ' + e)
         }
@@ -89,9 +98,36 @@ class JenkinsConfiguration implements Serializable {
         return null
     }
 
-    public deleteCredentialObject(String id) {
-        context.println "Deleting credential " + id + " in global store"
-        // TODO: add implementation   def deleteCredentials = CredentialsMatchers.withId(credentialsId)
+    /**
+     * Method for adding Secret in Jenkins. We keep this methord in for backward compatibility
+     * <p>
+     * @param secret_id
+     *    ID of secret stored in Jenkins
+     * @param description
+     *    Description from secret
+     * @param token
+     *    Token provided as string
+     */
+    public addJenkinsSecretCredential(String secret_id, String description, String token) {
+        return this.createCredatialObjectSecretString(secret_id, description, token)
+    }
+
+    /**
+     * Method for removing Jenkins Credentials Object
+     * <p>
+     * @param credential_id
+     *    ID of credential stored in Jenkins
+     */
+    public deleteCredentialObject(String credential_id) {
+        def allCreds
+        def store = Jenkins.get().getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+        allCreds = store.getCredentials(Domain.global())
+        allCreds.each {
+            if (it.id == credential_id) {
+                store.removeCredentials(Domain.global(), it)
+                context.println "Deleting credential " + credential_id + " from global store"
+            }
+        }
     }
 
     /**
@@ -588,7 +624,7 @@ class JenkinsConfiguration implements Serializable {
 
         // Check if our installation is already present in the configuration
         sonar_installations.each {
-            installation = (SonarInstallation) it
+            def installation = (SonarInstallation) it
             if (sonar_inst.getName() == installation.getName()) {
                 sonar_inst_exists = true
                 context.println("Found existing installation: " + installation.getName())
@@ -664,6 +700,54 @@ class JenkinsConfiguration implements Serializable {
             configStore.save(cfg)
             return true
         } else {
+            return false
+        }
+    }
+
+    /**
+     * Create new Maven Configuration in Config File Management
+     * <p>
+     * @param serverID
+     *    Server ID used inside pom.xml inside distributionManagement
+     * @param newConfigID
+     *    New maven configuration ID
+     * @param newConfigName
+     *    New maven configuration name
+     * @param newConfigComment
+     *    New maven configuration comment
+     * @param serverCreds
+     *    ServerCredentialMapping credentials
+     */
+    @NonCPS
+    public createMavenConfigContetnt(String serverID, String newConfigID, String newConfigName, String newConfigComment, ServerCredentialMapping serverCreds) {
+
+        def cfg = '''<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+                  <pluginGroups/>
+                  <proxies/>
+                  <servers/>
+                  <mirrors/>
+                  <profiles/>
+                </settings>
+                '''
+        def response = new XmlParser().parseText(cfg)
+
+        response.servers.replaceNode {
+            delegate.servers() {
+                delegate.server() {
+                    delegate.id(serverID)
+                    delegate.username()
+                    delegate.password()
+                }
+            }
+        }
+
+        try {
+            def globalConfigFiles = GlobalConfigFiles.get()
+            def globalConfig = new GlobalMavenSettingsConfig(newConfigID, newConfigName, newConfigComment, XmlUtil.serialize(response), true, [serverCreds].toList())
+            globalConfigFiles.save(globalConfig)
+            return true
+        } catch (Exception ex) {
+            context.println "Maven Config has been not saved " + ex
             return false
         }
     }
@@ -894,14 +978,74 @@ class JenkinsConfiguration implements Serializable {
      * @param jobName the job name
      * @return the last stable build or null.
      */
-    public getLastStableBuild(String jobName){
-        try{
+    public getLastStableBuild(String jobName) {
+        try {
             Job job = Jenkins.get().getItemByFullName(jobName) as Job
 
             return job.getLastStableBuild()
         } catch (ignore) {
             this.context.println("The job " + jobName + " do not exists")
             return null
+        }
+    }
+
+    /**
+     * Create new Jenkins Pipeline with SCM functionality
+     * <p>
+     * @param scmURL
+     *    SCM URL which contains Jenkinsfile
+     * @param scmBranch
+     *    SCM branch
+     * @param jenkinsJobName
+     *    Name of Jenkins Pipeline Job
+     */
+    boolean createJenkinsScmPipeline(String scmURL, String scmBranch, String jenkinsJobName) {
+        try {
+            def scm = new GitSCM(scmURL)
+            scm.branches = [new BranchSpec(scmBranch)];
+            def flowDefinition = new CpsScmFlowDefinition(scm, "Jenkinsfile")
+            Jenkins parent = Jenkins.get()
+            def job = new WorkflowJob(parent, jenkinsJobName)
+            job.definition = flowDefinition
+            parent.reload()
+            context.println "Jenkins job has been created"
+            return true
+        } catch (Exception ex) {
+            context.println "Jenkins job creation failed " + ex
+            return false
+        }
+    }
+
+    /**
+     * Method for creating new username in directoryservice.
+     * <p>
+     * @param uidNumber
+     *    user uidNumber
+     * @param username
+     *    username of the new user
+     * @param password
+     *    password of the new user
+     * @param desc
+     *    description for created user
+     */
+    public Boolean createLDAPUser(String uidNumber, String username, String password, String desc) {
+        try {
+            String urlParameters = "cn=" + username + "&sn=" + username + "&description=" + desc + "&gidNumber=10001&givenName=" + username + "&homeDirectory=/home/" + username + "&loginShell=/bin/bash&mail=" + username + "@capgemini.com&uid=" + username + "&uidNumber=" + uidNumber + "&groupCn=admins&userPassword=" + password
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            def microportalToken = System.getenv("MICROPORTAL_TOKEN")
+            URL url = new URL("http://microportal:8080/api/user");
+            HttpURLConnection post = (HttpURLConnection) url.openConnection();
+            post.setRequestMethod("POST")
+            post.setDoOutput(true)
+            post.setRequestProperty('Authorization', microportalToken)
+            DataOutputStream wr = new DataOutputStream(post.getOutputStream())
+            wr.write(postData);
+            int postRC = post.getResponseCode();
+            return postRC == 200
+        } catch (Exception ex) {
+            println("Unable to add user " + ex)
+            return false
         }
     }
 }
